@@ -5,11 +5,11 @@
 //  3. Cole a URL e a anon key abaixo
 // ═══════════════════════════════════════════════════════
 
-const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
+const SUPABASE_URL = 'COLE_SUA_URL_AQUI';
+const SUPABASE_KEY = 'COLE_SUA_ANON_KEY_AQUI';
 
 // ── INICIALIZAÇÃO ──────────────────────────────────────
-const isConfigured = SUPABASE_URL !== 'https://pygyunefyowmbfyhbajg.supabase.co';
+const isConfigured = SUPABASE_URL !== 'COLE_SUA_URL_AQUI';
 let supabase = null;
 
 if (isConfigured) {
@@ -230,6 +230,12 @@ function showToast(msg) {
 document.getElementById('task-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') addTask();
 });
+
+// ── EXPÕE FUNÇÕES GLOBALMENTE (necessário para onclick no HTML) ──
+window.addTask    = addTask;
+window.toggleTask = toggleTask;
+window.deleteTask = deleteTask;
+window.setFilter  = setFilter;
 
 // ── START ──────────────────────────────────────────────
 init();
