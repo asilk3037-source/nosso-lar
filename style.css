@@ -328,6 +328,25 @@ body {
   color: var(--pink);
 }
 
+/* Select inline de responsável */
+.tag-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--purple-light);
+  color: var(--purple);
+  border: none;
+  border-radius: 100px;
+  padding: 3px 12px;
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  outline: none;
+  transition: background .15s;
+}
+.tag-select:hover { background: #d9d0f5; }
+.done .tag-select { opacity: .6; }
+
 .btn-delete {
   background: none;
   border: none;
