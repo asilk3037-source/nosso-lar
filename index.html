@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nosso Lar ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── CONFIGURAÇÃO (aparece só uma vez) ── -->
+  <div id="config-banner" class="config-banner hidden">
+    <span>⚠️ Configure o Supabase em <code>app.js</code> para salvar as tarefas na nuvem.</span>
+    <button onclick="document.getElementById('config-banner').classList.add('hidden')">✕</button>
+  </div>
+
+  <div class="container">
+
+    <!-- ── HERO ── -->
+    <header class="hero">
+      <div class="hero-emoji">🏠</div>
+      <h1>Nosso Lar</h1>
+      <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+      <p class="hero-desc">Uma casa organizada, duas pessoas incríveis<br>e uma quantidade questionável de tarefas domésticas.</p>
+    </header>
+
+    <!-- ── STATS ── -->
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <span class="stat-num" id="stat-total">0</span>
+        <span class="stat-label">Total de Tarefas</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-done">0</span>
+        <span class="stat-label">Concluídas</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-pending">0</span>
+        <span class="stat-label">Pendentes</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-progress">0%</span>
+        <span class="stat-label">Progresso</span>
+      </div>
+    </div>
+
+    <!-- ── BARRA DE PROGRESSO ── -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+
+    <!-- ── FORMULÁRIO DE CADASTRO ── -->
+    <section class="add-task-section">
+      <h2 class="section-title">➕ Adicionar Tarefa</h2>
+      <div class="add-task-form">
+        <input
+          type="text"
+          id="task-input"
+          class="task-input"
+          placeholder="Nome da tarefa…"
+          maxlength="80"
+        />
+        <select id="task-responsible" class="task-select">
+          <option value="Aline">Aline</option>
+          <option value="Isabel">Isabel</option>
+          <option value="Aline + Isabel">Aline + Isabel</option>
+        </select>
+        <select id="task-category" class="task-select">
+          <option value="🧹 Limpeza">🧹 Limpeza</option>
+          <option value="🍳 Cozinha">🍳 Cozinha</option>
+          <option value="👗 Roupas">👗 Roupas</option>
+          <option value="🛒 Compras">🛒 Compras</option>
+          <option value="🔧 Manutenção">🔧 Manutenção</option>
+          <option value="📦 Organização">📦 Organização</option>
+          <option value="🌿 Plantas">🌿 Plantas</option>
+          <option value="🐾 Pets">🐾 Pets</option>
+          <option value="📋 Outro">📋 Outro</option>
+        </select>
+        <button class="btn-add" onclick="addTask()">Adicionar</button>
+      </div>
+    </section>
+
+    <!-- ── FILTROS ── -->
+    <section class="filter-section">
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">Todas</button>
+        <button class="filter-btn" data-filter="pending" onclick="setFilter('pending', this)">Pendentes</button>
+        <button class="filter-btn" data-filter="done" onclick="setFilter('done', this)">Concluídas</button>
+        <button class="filter-btn" data-filter="Aline" onclick="setFilter('Aline', this)">Aline</button>
+        <button class="filter-btn" data-filter="Isabel" onclick="setFilter('Isabel', this)">Isabel</button>
+      </div>
+    </section>
+
+    <!-- ── LISTA DE TAREFAS ── -->
+    <section class="tasks-section">
+      <h2 class="section-title">📋 Checklist da Casa</h2>
+      <div id="task-list" class="task-list">
+        <div class="empty-state" id="empty-state">
+          <span>✨ Nenhuma tarefa aqui!</span>
+          <p>Adicione a primeira tarefa acima.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Feito com ❤️ por Aline & Isabel
+    </footer>
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
