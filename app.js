@@ -10,13 +10,11 @@ const SUPABASE_KEY = 'COLE_SUA_ANON_KEY_AQUI';
 
 // ── INICIALIZAÇÃO ──────────────────────────────────────
 const isConfigured = SUPABASE_URL !== 'COLE_SUA_URL_AQUI';
-let supabase = null;
+let supabaseClient = null;
 
 if (isConfigured) {
-  const { createClient } = window.supabase;
-  supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 } else {
-  // Avisa no banner que ainda precisa configurar
   document.getElementById('config-banner')?.classList.remove('hidden');
 }
 
@@ -24,13 +22,13 @@ if (isConfigured) {
 let tasks = [];
 let currentFilter = 'all';
 
-// ── TAREFAS PADRÃO (só usadas no modo offline) ────────
+// ── TAREFAS PADRÃO (modo offline) ─────────────────────
 const DEFAULT_TASKS = [
-  { id: crypto.randomUUID(), name: 'Limpar geladeira',     responsible: 'Aline',          category: '🍳 Cozinha',    done: false },
-  { id: crypto.randomUUID(), name: 'Lavar vasilha',        responsible: 'Isabel',         category: '🍳 Cozinha',    done: false },
-  { id: crypto.randomUUID(), name: 'Lavar banheiro',       responsible: 'Aline + Isabel', category: '🧹 Limpeza',   done: false },
-  { id: crypto.randomUUID(), name: 'Lavar roupa',          responsible: 'Aline',          category: '👗 Roupas',    done: false },
-  { id: crypto.randomUUID(), name: 'Pegar roupa e dobrar', responsible: 'Isabel',         category: '👗 Roupas',    done: false },
+  { id: '1', name: 'Limpar geladeira',     responsible: 'Aline',          category: '🍳 Cozinha',   done: false },
+  { id: '2', name: 'Lavar vasilha',        responsible: 'Isabel',         category: '🍳 Cozinha',   done: false },
+  { id: '3', name: 'Lavar banheiro',       responsible: 'Aline + Isabel', category: '🧹 Limpeza',   done: false },
+  { id: '4', name: 'Lavar roupa',          responsible: 'Aline',          category: '👗 Roupas',    done: false },
+  { id: '5', name: 'Pegar roupa e dobrar', responsible: 'Isabel',         category: '👗 Roupas',    done: false },
 ];
 
 // ── INICIALIZAR APP ────────────────────────────────────
@@ -39,7 +37,6 @@ async function init() {
     await loadFromSupabase();
     subscribeToChanges();
   } else {
-    // Modo offline: carrega do localStorage ou usa padrões
     const saved = localStorage.getItem('nosso-lar-tasks');
     tasks = saved ? JSON.parse(saved) : DEFAULT_TASKS;
     render();
@@ -48,7 +45,7 @@ async function init() {
 
 // ── SUPABASE: CARREGAR ─────────────────────────────────
 async function loadFromSupabase() {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('tasks')
     .select('*')
     .order('created_at', { ascending: true });
@@ -64,7 +61,7 @@ async function loadFromSupabase() {
 
 // ── SUPABASE: REALTIME ─────────────────────────────────
 function subscribeToChanges() {
-  supabase
+  supabaseClient
     .channel('tasks-channel')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
       loadFromSupabase();
@@ -82,16 +79,16 @@ async function addTask() {
   const category    = document.getElementById('task-category').value;
 
   const newTask = {
-    id:          crypto.randomUUID(),
+    id:         Date.now().toString(),
     name,
     responsible,
     category,
-    done:        false,
-    created_at:  new Date().toISOString(),
+    done:       false,
+    created_at: new Date().toISOString(),
   };
 
   if (isConfigured) {
-    const { error } = await supabase.from('tasks').insert([newTask]);
+    const { error } = await supabaseClient.from('tasks').insert([newTask]);
     if (error) { showToast('❌ Erro ao salvar tarefa.'); console.error(error); return; }
   } else {
     tasks.push(newTask);
@@ -111,7 +108,7 @@ async function toggleTask(id) {
   const newDone = !task.done;
 
   if (isConfigured) {
-    const { error } = await supabase.from('tasks').update({ done: newDone }).eq('id', id);
+    const { error } = await supabaseClient.from('tasks').update({ done: newDone }).eq('id', id);
     if (error) { showToast('❌ Erro ao atualizar.'); return; }
   } else {
     task.done = newDone;
@@ -126,7 +123,7 @@ async function deleteTask(id) {
   if (!confirm('Excluir essa tarefa?')) return;
 
   if (isConfigured) {
-    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    const { error } = await supabaseClient.from('tasks').delete().eq('id', id);
     if (error) { showToast('❌ Erro ao excluir.'); return; }
   } else {
     tasks = tasks.filter(t => t.id !== id);
@@ -157,11 +154,10 @@ function getFiltered() {
 // ── RENDER ─────────────────────────────────────────────
 function render() {
   updateStats();
-  const list    = document.getElementById('task-list');
-  const empty   = document.getElementById('empty-state');
+  const list     = document.getElementById('task-list');
+  const empty    = document.getElementById('empty-state');
   const filtered = getFiltered();
 
-  // Limpa itens antigos (preserva o empty-state)
   list.querySelectorAll('.task-item').forEach(el => el.remove());
 
   if (filtered.length === 0) {
@@ -202,9 +198,9 @@ function updateStats() {
   const pending = total - done;
   const pct     = total > 0 ? Math.round((done / total) * 100) : 0;
 
-  document.getElementById('stat-total').textContent   = total;
-  document.getElementById('stat-done').textContent    = done;
-  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-total').textContent    = total;
+  document.getElementById('stat-done').textContent     = done;
+  document.getElementById('stat-pending').textContent  = pending;
   document.getElementById('stat-progress').textContent = pct + '%';
   document.getElementById('progress-fill').style.width = pct + '%';
 }
@@ -226,16 +222,16 @@ function showToast(msg) {
   t._timeout = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ── ENTER para adicionar ───────────────────────────────
-document.getElementById('task-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addTask();
-});
-
-// ── EXPÕE FUNÇÕES GLOBALMENTE (necessário para onclick no HTML) ──
+// ── EXPÕE FUNÇÕES GLOBALMENTE ──────────────────────────
 window.addTask    = addTask;
 window.toggleTask = toggleTask;
 window.deleteTask = deleteTask;
 window.setFilter  = setFilter;
+
+// ── ENTER para adicionar ───────────────────────────────
+document.getElementById('task-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
 
 // ── START ──────────────────────────────────────────────
 init();
