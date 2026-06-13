@@ -1,51 +1,33 @@
-// ═══════════════════════════════════════════════════════
-//  CONFIGURAÇÃO DO SUPABASE
-//  1. Acesse https://supabase.com e crie um projeto grátis
-//  2. Vá em Project Settings → API
-//  3. Cole a URL e a anon key abaixo
-// ═══════════════════════════════════════════════════════
-
-const SUPABASE_URL = 'COLE_SUA_URL_AQUI';
-const SUPABASE_KEY = 'COLE_SUA_ANON_KEY_AQUI';
+const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
 
 // ── INICIALIZAÇÃO ──────────────────────────────────────
-const isConfigured = SUPABASE_URL !== 'COLE_SUA_URL_AQUI';
-let supabaseClient = null;
+let db = null;
 
-if (isConfigured) {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} else {
-  document.getElementById('config-banner')?.classList.remove('hidden');
+try {
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch(e) {
+  console.error('Erro ao iniciar Supabase:', e);
 }
 
-// ── ESTADO LOCAL ───────────────────────────────────────
 let tasks = [];
 let currentFilter = 'all';
 
-// ── TAREFAS PADRÃO (modo offline) ─────────────────────
-const DEFAULT_TASKS = [
-  { id: '1', name: 'Limpar geladeira',     responsible: 'Aline',          category: '🍳 Cozinha',   done: false },
-  { id: '2', name: 'Lavar vasilha',        responsible: 'Isabel',         category: '🍳 Cozinha',   done: false },
-  { id: '3', name: 'Lavar banheiro',       responsible: 'Aline + Isabel', category: '🧹 Limpeza',   done: false },
-  { id: '4', name: 'Lavar roupa',          responsible: 'Aline',          category: '👗 Roupas',    done: false },
-  { id: '5', name: 'Pegar roupa e dobrar', responsible: 'Isabel',         category: '👗 Roupas',    done: false },
-];
-
 // ── INICIALIZAR APP ────────────────────────────────────
 async function init() {
-  if (isConfigured) {
+  if (db) {
     await loadFromSupabase();
     subscribeToChanges();
   } else {
     const saved = localStorage.getItem('nosso-lar-tasks');
-    tasks = saved ? JSON.parse(saved) : DEFAULT_TASKS;
+    tasks = saved ? JSON.parse(saved) : [];
     render();
   }
 }
 
 // ── SUPABASE: CARREGAR ─────────────────────────────────
 async function loadFromSupabase() {
-  const { data, error } = await supabaseClient
+  const { data, error } = await db
     .from('tasks')
     .select('*')
     .order('created_at', { ascending: true });
@@ -61,8 +43,7 @@ async function loadFromSupabase() {
 
 // ── SUPABASE: REALTIME ─────────────────────────────────
 function subscribeToChanges() {
-  supabaseClient
-    .channel('tasks-channel')
+  db.channel('tasks-channel')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
       loadFromSupabase();
     })
@@ -78,19 +59,14 @@ async function addTask() {
   const responsible = document.getElementById('task-responsible').value;
   const category    = document.getElementById('task-category').value;
 
-  const newTask = {
-    id:         Date.now().toString(),
-    name,
-    responsible,
-    category,
-    done:       false,
-    created_at: new Date().toISOString(),
-  };
+  const newTask = { name, responsible, category, done: false };
 
-  if (isConfigured) {
-    const { error } = await supabaseClient.from('tasks').insert([newTask]);
-    if (error) { showToast('❌ Erro ao salvar tarefa.'); console.error(error); return; }
+  if (db) {
+    const { error } = await db.from('tasks').insert([newTask]);
+    if (error) { showToast('❌ Erro ao salvar: ' + error.message); console.error(error); return; }
   } else {
+    newTask.id = Date.now().toString();
+    newTask.created_at = new Date().toISOString();
     tasks.push(newTask);
     saveLocal();
     render();
@@ -107,8 +83,8 @@ async function toggleTask(id) {
   if (!task) return;
   const newDone = !task.done;
 
-  if (isConfigured) {
-    const { error } = await supabaseClient.from('tasks').update({ done: newDone }).eq('id', id);
+  if (db) {
+    const { error } = await db.from('tasks').update({ done: newDone }).eq('id', id);
     if (error) { showToast('❌ Erro ao atualizar.'); return; }
   } else {
     task.done = newDone;
@@ -122,8 +98,8 @@ async function toggleTask(id) {
 async function deleteTask(id) {
   if (!confirm('Excluir essa tarefa?')) return;
 
-  if (isConfigured) {
-    const { error } = await supabaseClient.from('tasks').delete().eq('id', id);
+  if (db) {
+    const { error } = await db.from('tasks').delete().eq('id', id);
     if (error) { showToast('❌ Erro ao excluir.'); return; }
   } else {
     tasks = tasks.filter(t => t.id !== id);
@@ -211,7 +187,7 @@ function saveLocal() {
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function showToast(msg) {
