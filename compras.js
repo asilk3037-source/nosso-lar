@@ -162,7 +162,7 @@ async function toggleCatalogItem(btn, name, cat) {
     showToast(`🗑️ "${name}" removido`);
   } else {
     // adiciona
-    const { error } = await db.from('shopping_items').insert([{ name, category: cat, checked: false, value: null }]);
+    const { error } = await db.from('shopping_items').insert([{ name, category: cat, checked: false, value: null, quantity: null }]);
     if (error) { showToast('❌ ' + error.message); return; }
     showToast(`✅ "${name}" adicionado!`);
   }
@@ -227,13 +227,16 @@ function toggleManual() {
 }
 
 async function addItem() {
-  const input = document.getElementById('item-input');
-  const name  = input.value.trim();
+  const input    = document.getElementById('item-input');
+  const name     = input.value.trim();
   if (!name) { input.focus(); showToast('✏️ Escreve o nome do produto!'); return; }
-  const cat = document.getElementById('item-cat').value;
-  const { error } = await db.from('shopping_items').insert([{ name, category: cat, checked: false, value: null }]);
+  const cat      = document.getElementById('item-cat').value;
+  const qtyInput = document.getElementById('item-qty');
+  const quantity = qtyInput ? qtyInput.value.trim() || null : null;
+  const { error } = await db.from('shopping_items').insert([{ name, category: cat, checked: false, value: null, quantity }]);
   if (error) { showToast('❌ ' + error.message); return; }
   input.value = '';
+  if (qtyInput) qtyInput.value = '';
   input.focus();
   showToast('✅ Adicionado!');
 }
@@ -250,6 +253,12 @@ async function updateValue(id, val) {
   const value = parseFloat(val);
   if (isNaN(value) || value < 0) return;
   await db.from('shopping_items').update({ value }).eq('id', id);
+}
+
+// ── ATUALIZAR QUANTIDADE ──────────────────────────────
+async function updateQuantity(id, val) {
+  const quantity = val.trim() || null;
+  await db.from('shopping_items').update({ quantity }).eq('id', id);
 }
 
 // ── EXCLUIR ───────────────────────────────────────────
@@ -307,6 +316,14 @@ function render() {
         <span class="task-name ${item.checked ? 'striked' : ''}">${escapeHtml(item.name)}</span>
         <div class="task-meta">
           <span class="tag tag-category">${escapeHtml(item.category)}</span>
+          <div class="qty-input-wrap">
+            <span class="qty-prefix">Qtd:</span>
+            <input type="text" class="qty-input" placeholder="ex: 2 kg"
+              maxlength="20"
+              value="${item.quantity !== null ? escapeHtml(item.quantity) : ''}"
+              onchange="updateQuantity('${item.id}', this.value)"
+              onclick="event.stopPropagation()" />
+          </div>
           ${item.checked ? `
             <div class="value-input-wrap">
               <span class="value-prefix">R$</span>
@@ -337,17 +354,18 @@ function showToast(msg) {
 }
 
 // ── EXPÕE FUNÇÕES ─────────────────────────────────────
-window.openCatalog    = openCatalog;
-window.closeCatalog   = closeCatalog;
-window.showCatHome    = showCatHome;
-window.onSearch       = onSearch;
-window.clearSearch    = clearSearch;
-window.toggleManual   = toggleManual;
-window.addItem        = addItem;
-window.toggleItem     = toggleItem;
-window.updateValue    = updateValue;
-window.deleteItem     = deleteItem;
-window.finishShopping = finishShopping;
+window.openCatalog      = openCatalog;
+window.closeCatalog     = closeCatalog;
+window.showCatHome      = showCatHome;
+window.onSearch         = onSearch;
+window.clearSearch      = clearSearch;
+window.toggleManual     = toggleManual;
+window.addItem          = addItem;
+window.toggleItem       = toggleItem;
+window.updateValue      = updateValue;
+window.updateQuantity   = updateQuantity;
+window.deleteItem       = deleteItem;
+window.finishShopping   = finishShopping;
 
 // ── ENTER ─────────────────────────────────────────────
 document.getElementById('item-input').addEventListener('keydown', e => {
