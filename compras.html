@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nosso Lar ❤️ — Lista de Compras</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body>
+  <div class="container">
+
+    <header class="hero hero-orange">
+      <div class="hero-emoji">🛒</div>
+      <h1>Lista de Compras</h1>
+      <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+      <p class="hero-desc">Adicione os itens, dê check no mercado e informe o valor.</p>
+    </header>
+
+    <!-- TOTAIS -->
+    <div class="stats">
+      <div class="stat-card">
+        <span class="stat-num" id="stat-itens">0</span>
+        <span class="stat-label">Itens</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-checked">0</span>
+        <span class="stat-label">No carrinho</span>
+      </div>
+      <div class="stat-card" style="grid-column: span 2">
+        <span class="stat-num green" id="stat-total-compra">R$ 0,00</span>
+        <span class="stat-label">Total da compra</span>
+      </div>
+    </div>
+
+    <!-- FORM ADICIONAR ITEM -->
+    <section class="add-task-section">
+      <h2 class="section-title">➕ Adicionar Item</h2>
+      <div class="add-task-form">
+        <input type="text" id="item-input" class="task-input" placeholder="Nome do produto…" maxlength="60" />
+        <select id="item-cat" class="task-select">
+          <option value="🥩 Proteína">🥩 Proteína</option>
+          <option value="🥦 Hortifruti">🥦 Hortifruti</option>
+          <option value="🥛 Laticínios">🥛 Laticínios</option>
+          <option value="🍞 Padaria">🍞 Padaria</option>
+          <option value="🧴 Higiene">🧴 Higiene</option>
+          <option value="🧹 Limpeza">🧹 Limpeza</option>
+          <option value="🥫 Mercearia">🥫 Mercearia</option>
+          <option value="🐾 Pet">🐾 Pet</option>
+          <option value="📋 Outro">📋 Outro</option>
+        </select>
+        <button class="btn-add" onclick="addItem()">Adicionar</button>
+      </div>
+    </section>
+
+    <!-- LISTA -->
+    <section class="tasks-section">
+      <div class="section-header">
+        <h2 class="section-title">🛍️ Minha Lista</h2>
+        <button class="btn-finish" id="btn-finish" onclick="finishShopping()" disabled>✅ Finalizar compra</button>
+      </div>
+      <div id="shopping-list" class="task-list">
+        <div class="empty-state" id="shopping-empty">
+          <span>🛒 Lista vazia!</span>
+          <p>Adicione itens acima antes de ir ao mercado.</p>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:80px"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <span class="nav-icon">✅</span>
+      <span class="nav-label">Tarefas</span>
+    </a>
+    <a href="gastos.html" class="nav-item">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Gastos</span>
+    </a>
+    <a href="compras.html" class="nav-item active">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Compras</span>
+    </a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="compras.js?v=5"></script>
+</body>
+</html>

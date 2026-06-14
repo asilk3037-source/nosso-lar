@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nosso Lar ❤️ — Gastos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body>
+  <div class="container">
+
+    <header class="hero hero-green">
+      <div class="hero-emoji">💰</div>
+      <h1>Gastos</h1>
+      <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+      <p class="hero-desc">Controle financeiro de cada uma, tudo em um só lugar.</p>
+    </header>
+
+    <!-- TOTAIS GERAIS -->
+    <div class="stats">
+      <div class="stat-card">
+        <span class="stat-num green" id="total-aline">R$ 0</span>
+        <span class="stat-label">Total Aline</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num pink" id="total-isabel">R$ 0</span>
+        <span class="stat-label">Total Isabel</span>
+      </div>
+      <div class="stat-card" style="grid-column: span 2">
+        <span class="stat-num" id="total-geral">R$ 0</span>
+        <span class="stat-label">Total Geral</span>
+      </div>
+    </div>
+
+    <!-- ABAS -->
+    <div class="person-tabs">
+      <button class="person-tab active" onclick="switchPerson('Aline', this)">👤 Aline</button>
+      <button class="person-tab" onclick="switchPerson('Isabel', this)">👤 Isabel</button>
+    </div>
+
+    <!-- FORM LANÇAR GASTO -->
+    <section class="add-task-section">
+      <h2 class="section-title" id="form-title">➕ Lançar Gasto — Aline</h2>
+      <div class="add-task-form">
+        <input type="text" id="expense-desc" class="task-input" placeholder="Descrição do gasto…" maxlength="80" />
+        <select id="expense-cat" class="task-select">
+          <option value="🛒 Mercado">🛒 Mercado</option>
+          <option value="🍔 Alimentação">🍔 Alimentação</option>
+          <option value="💊 Saúde">💊 Saúde</option>
+          <option value="🚌 Transporte">🚌 Transporte</option>
+          <option value="👗 Roupas">👗 Roupas</option>
+          <option value="🏠 Casa">🏠 Casa</option>
+          <option value="🐾 Pet">🐾 Pet</option>
+          <option value="🎉 Lazer">🎉 Lazer</option>
+          <option value="📋 Outro">📋 Outro</option>
+        </select>
+        <input type="number" id="expense-value" class="task-input" placeholder="R$ Valor" min="0" step="0.01" style="max-width:130px" />
+        <button class="btn-add" onclick="addExpense()">Adicionar</button>
+      </div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section class="tasks-section">
+      <h2 class="section-title" id="history-title">📋 Histórico — Aline</h2>
+      <div id="expense-list" class="task-list">
+        <div class="empty-state" id="expense-empty">
+          <span>💸 Nenhum gasto aqui!</span>
+          <p>Lance o primeiro gasto acima.</p>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:80px"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <span class="nav-icon">✅</span>
+      <span class="nav-label">Tarefas</span>
+    </a>
+    <a href="gastos.html" class="nav-item active">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Gastos</span>
+    </a>
+    <a href="compras.html" class="nav-item">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Compras</span>
+    </a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="gastos.js?v=5"></script>
+</body>
+</html>
