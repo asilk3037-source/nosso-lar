@@ -77,34 +77,33 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #f5f0ff;
-  border: 1.5px solid #d4b8f7;
+  background: var(--purple-light, #f0ebff);
+  border: 1.5px solid var(--border);
   border-radius: 100px;
   padding: 3px 10px 3px 8px;
   margin-top: 4px;
+  min-width: 90px;
 }
 .qty-prefix {
-  font-size: .72rem;
-  font-weight: 700;
-  color: #7c3aed;
-  white-space: nowrap;
+  font-size: .75rem;
+  flex-shrink: 0;
 }
 .qty-input {
   border: none;
   outline: none;
-  width: 80px;
+  width: 70px;
+  min-width: 50px;
   font-size: .78rem;
   font-family: 'Inter', sans-serif;
   color: var(--text);
   background: transparent;
 }
-.qty-input::placeholder { color: #b09dd6; }
+.qty-input::placeholder { color: var(--muted); }
 
 /* Campo qty no form manual */
 .task-input-qty {
   margin-top: -4px;
   font-size: .88rem;
-  color: #7c3aed;
 }
 
 /* STAT ORANGE */

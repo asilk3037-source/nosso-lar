@@ -317,12 +317,13 @@ function render() {
         <div class="task-meta">
           <span class="tag tag-category">${escapeHtml(item.category)}</span>
           <div class="qty-input-wrap">
-            <span class="qty-prefix">Qtd:</span>
-            <input type="text" class="qty-input" placeholder="ex: 2 kg"
+            <span class="qty-prefix">📦</span>
+            <input type="text" class="qty-input" placeholder="qtd…"
               maxlength="20"
-              value="${item.quantity !== null ? escapeHtml(item.quantity) : ''}"
-              onchange="updateQuantity('${item.id}', this.value)"
-              onclick="event.stopPropagation()" />
+              value="${(item.quantity !== null && item.quantity !== undefined) ? escapeHtml(String(item.quantity)) : ''}"
+              onblur="updateQuantity('${item.id}', this.value)"
+              onclick="event.stopPropagation()"
+              onkeydown="if(event.key==='Enter'){this.blur();}" />
           </div>
           ${item.checked ? `
             <div class="value-input-wrap">
