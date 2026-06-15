@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Nosso Lar ❤️ — Gráficos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=11" />
+</head>
+<body>
+<div class="container">
+
+  <header class="hero hero-blue">
+    <div class="hero-emoji">📊</div>
+    <h1>Gráficos</h1>
+    <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+    <p class="hero-desc">Visualize os gastos do lar mês a mês.</p>
+    <div class="user-badge" onclick="window.location.href='perfil.html'">
+      <div class="user-avatar" id="nav-avatar"><span id="nav-initial"></span></div>
+      <span id="nav-username">…</span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-num pink" id="g-total">R$ 0</span>
+      <span class="stat-label">Total do mês</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num green" id="g-aline">R$ 0</span>
+      <span class="stat-label">Aline</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" id="g-isabel">R$ 0</span>
+      <span class="stat-label">Isabel</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num orange" id="g-shared">R$ 0</span>
+      <span class="stat-label">Compartilhado</span>
+    </div>
+  </div>
+
+  <!-- Seletor de mês -->
+  <div class="card">
+    <div class="month-tabs" id="month-tabs"></div>
+  </div>
+
+  <!-- Gráfico por categoria -->
+  <div class="chart-card">
+    <h2 class="chart-title">📦 Gastos por Categoria</h2>
+    <div class="chart-wrap" style="height:260px">
+      <canvas id="chart-cat"></canvas>
+    </div>
+  </div>
+
+  <!-- Gráfico linha mensal -->
+  <div class="chart-card">
+    <h2 class="chart-title">📈 Evolução Mensal (últimos 6 meses)</h2>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="chart-month"></canvas>
+    </div>
+  </div>
+
+  <!-- Top gastos -->
+  <div class="card">
+    <h2 class="section-title" style="margin-bottom:14px">🏆 Maiores gastos do mês</h2>
+    <div id="top-list" class="task-list"></div>
+  </div>
+
+  <div style="height:90px"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"   class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></a>
+  <a href="tarefas.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
+  <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+  <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
+  <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="auth.js"></script>
+<script>
+(function setupAvatar() {
+  const u = window.CURRENT_USER || '';
+  document.getElementById('nav-username').textContent = u;
+  document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+  const el = document.getElementById('nav-avatar');
+  const img = new Image();
+  img.onload = () => { el.style.backgroundImage = `url('${img.src}')`; document.getElementById('nav-initial').style.display = 'none'; };
+  img.src = `fotos/${u.toLowerCase()}.jpg`;
+})();
+</script>
+<script src="graficos.js?v=1"></script>
+</body>
+</html>

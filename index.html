@@ -3,123 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Nosso Lar ❤️ — Tarefas</title>
+  <title>Nosso Lar ❤️</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=11" />
 </head>
 <body>
-  <div class="container">
+<div class="container">
 
-    <header class="hero">
-      <div class="hero-emoji">🏠</div>
-      <h1>Nosso Lar</h1>
-      <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
-      <p class="hero-desc">Uma casa organizada, duas pessoas incríveis<br>e uma quantidade questionável de tarefas.</p>
-      <div class="user-badge" onclick="window.location.href='perfil.html'">
-        <div class="user-avatar" id="nav-avatar">
-          <span id="nav-initial"></span>
-        </div>
-        <span id="nav-username">…</span>
-      </div>
-    </header>
-
-    <div class="stats" id="stats">
-      <div class="stat-card stat-active" data-filter="all" onclick="setFilter('all')">
-        <span class="stat-num" id="stat-total">0</span>
-        <span class="stat-label">Total de Tarefas</span>
-      </div>
-      <div class="stat-card" data-filter="done" onclick="setFilter('done')">
-        <span class="stat-num green" id="stat-done">0</span>
-        <span class="stat-label">Concluídas</span>
-      </div>
-      <div class="stat-card" data-filter="pending" onclick="setFilter('pending')">
-        <span class="stat-num pink" id="stat-pending">0</span>
-        <span class="stat-label">Pendentes</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-num" id="stat-progress">0%</span>
-        <span class="stat-label">Progresso</span>
-      </div>
+  <header class="hero">
+    <div class="hero-emoji">🏠</div>
+    <h1>Nosso Lar</h1>
+    <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+    <div class="user-badge" onclick="window.location.href='perfil.html'">
+      <div class="user-avatar" id="nav-avatar"><span id="nav-initial"></span></div>
+      <span id="nav-username">…</span>
     </div>
+  </header>
 
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill" id="progress-fill"></div>
+  <!-- QUICK STATS -->
+  <div class="stats" id="home-stats">
+    <div class="stat-card">
+      <span class="stat-num pink" id="hs-tarefas">…</span>
+      <span class="stat-label">Tarefas pendentes</span>
     </div>
-
-    <section class="add-task-section">
-      <h2 class="section-title" style="margin-bottom:14px">➕ Adicionar Tarefa</h2>
-      <div class="add-task-form">
-        <input type="text" id="task-input" class="task-input" placeholder="Nome da tarefa…" maxlength="80" />
-        <select id="task-responsible" class="task-select">
-          <option value="Aline">Aline</option>
-          <option value="Isabel">Isabel</option>
-          <option value="Aline + Isabel">As duas ❤️</option>
-        </select>
-        <select id="task-category" class="task-select">
-          <option value="🧹 Limpeza">🧹 Limpeza</option>
-          <option value="🍳 Cozinha">🍳 Cozinha</option>
-          <option value="👗 Roupas">👗 Roupas</option>
-          <option value="🛒 Compras">🛒 Compras</option>
-          <option value="🔧 Manutenção">🔧 Manutenção</option>
-          <option value="📦 Organização">📦 Organização</option>
-          <option value="🌿 Plantas">🌿 Plantas</option>
-          <option value="🐾 Pets">🐾 Pets</option>
-          <option value="📋 Outro">📋 Outro</option>
-        </select>
-        <button class="btn-add" onclick="addTask()">Adicionar</button>
-      </div>
-    </section>
-
-    <section class="filter-section">
-      <div class="filters">
-        <button class="filter-btn active" data-filter="all"     onclick="setFilter('all', this)">Todas</button>
-        <button class="filter-btn"        data-filter="pending" onclick="setFilter('pending', this)">Pendentes</button>
-        <button class="filter-btn"        data-filter="done"    onclick="setFilter('done', this)">Concluídas</button>
-        <button class="filter-btn"        data-filter="Aline"   onclick="setFilter('Aline', this)">Aline</button>
-        <button class="filter-btn"        data-filter="Isabel"  onclick="setFilter('Isabel', this)">Isabel</button>
-      </div>
-    </section>
-
-    <section class="tasks-section">
-      <h2 class="section-title" style="margin-bottom:14px">📋 Checklist da Casa</h2>
-      <div id="task-list" class="task-list">
-        <div class="empty-state" id="empty-state">
-          <span>✨</span>
-          <p>Nenhuma tarefa por aqui!<br>Adicione a primeira acima.</p>
-        </div>
-      </div>
-    </section>
-
-    <div style="height:90px"></div>
+    <div class="stat-card">
+      <span class="stat-num" id="hs-recados">…</span>
+      <span class="stat-label">Recados novos</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num orange" id="hs-contas">…</span>
+      <span class="stat-label">Contas a pagar</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num green" id="hs-estoque">…</span>
+      <span class="stat-label">Estoque baixo</span>
+    </div>
   </div>
 
-  <nav class="bottom-nav">
-    <a href="index.html"   class="nav-item active"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
-    <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
-    <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
-    <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
-  </nav>
+  <!-- APPS GRID -->
+  <div class="card">
+    <h2 class="section-title" style="margin-bottom:16px">✨ Funcionalidades</h2>
+    <div class="apps-grid">
+      <a href="tarefas.html" class="app-card">
+        <div class="app-card-icon" style="background:#f5eeff">✅</div>
+        <span class="app-card-label">Tarefas</span>
+      </a>
+      <a href="gastos.html" class="app-card">
+        <div class="app-card-icon" style="background:#d1fae5">💰</div>
+        <span class="app-card-label">Contas</span>
+      </a>
+      <a href="compras.html" class="app-card">
+        <div class="app-card-icon" style="background:#fff7ed">🛒</div>
+        <span class="app-card-label">Compras</span>
+      </a>
+      <a href="recados.html" class="app-card" id="app-recados">
+        <div class="app-card-icon" style="background:#fdf2f8">💬</div>
+        <span class="app-card-label">Recados</span>
+      </a>
+      <a href="graficos.html" class="app-card">
+        <div class="app-card-icon" style="background:#eff6ff">📊</div>
+        <span class="app-card-label">Gráficos</span>
+      </a>
+      <a href="rachador.html" class="app-card">
+        <div class="app-card-icon" style="background:#f0fdf4">✂️</div>
+        <span class="app-card-label">Rachador</span>
+      </a>
+      <a href="datas.html" class="app-card">
+        <div class="app-card-icon" style="background:#fefce8">📅</div>
+        <span class="app-card-label">Datas</span>
+      </a>
+      <a href="estoque.html" class="app-card">
+        <div class="app-card-icon" style="background:#f0f9ff">📦</div>
+        <span class="app-card-label">Estoque</span>
+      </a>
+      <a href="perfil.html" class="app-card">
+        <div class="app-card-icon" style="background:#fdf4ff">👤</div>
+        <span class="app-card-label">Perfil</span>
+      </a>
+    </div>
+  </div>
 
-  <div class="toast" id="toast"></div>
+  <!-- PRÓXIMOS EVENTOS -->
+  <div class="card" id="upcoming-section">
+    <h2 class="section-title" style="margin-bottom:14px">🔔 Próximos eventos</h2>
+    <div class="upcoming-list" id="upcoming-list">
+      <div class="empty-state" style="padding:24px 0">
+        <span>📅</span>
+        <p>Nenhum evento próximo.<br>Cadastre em <a href="datas.html" style="color:var(--pink)">Datas Importantes</a>!</p>
+      </div>
+    </div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth.js"></script>
-  <script>
-    (function setupAvatar() {
-      const u = window.CURRENT_USER || '';
-      document.getElementById('nav-username').textContent = u;
-      document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
-      const avatarEl = document.getElementById('nav-avatar');
-      const img = new Image();
-      img.onload = () => {
-        avatarEl.style.backgroundImage = `url('${img.src}')`;
-        document.getElementById('nav-initial').style.display = 'none';
-      };
-      img.src = `fotos/${u.toLowerCase()}.jpg`;
-    })();
-  </script>
-  <script src="app.js?v=10"></script>
+  <div style="height:90px"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"   class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></a>
+  <a href="tarefas.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
+  <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+  <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
+  <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+(function setupAvatar() {
+  const u = window.CURRENT_USER || '';
+  document.getElementById('nav-username').textContent = u;
+  document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+  const el = document.getElementById('nav-avatar');
+  const img = new Image();
+  img.onload = () => { el.style.backgroundImage = `url('${img.src}')`; document.getElementById('nav-initial').style.display = 'none'; };
+  img.src = `fotos/${u.toLowerCase()}.jpg`;
+})();
+
+async function init() {
+  const u = window.CURRENT_USER;
+
+  // saudação no hero-sub
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  document.querySelector('.hero h1').textContent = `${greeting}, ${u}!`;
+  document.querySelector('.hero-sub').innerHTML  = 'Nosso Lar <span class="heart">❤️</span>';
+
+  const [taskRes, recadoRes, expRes, stockRes, datesRes] = await Promise.all([
+    db.from('tasks').select('done').eq('done', false),
+    db.from('recados').select('id,read').eq('read', false),
+    db.from('expenses').select('id,paid').eq('paid', false),
+    db.from('stock').select('id,quantity,min_quantity'),
+    db.from('important_dates').select('title,date,category,repeat_yearly').order('date'),
+  ]);
+
+  // Quick stats
+  const pendingTasks   = (taskRes.data || []).length;
+  const unreadRecados  = (recadoRes.data || []).filter(r => r.read === false).length;
+  const contasAPagar   = (expRes.data || []).length;
+  const estoqueItems   = (stockRes.data || []).filter(s => Number(s.quantity) <= Number(s.min_quantity)).length;
+
+  document.getElementById('hs-tarefas').textContent = pendingTasks;
+  document.getElementById('hs-recados').textContent = unreadRecados;
+  document.getElementById('hs-contas').textContent  = contasAPagar;
+  document.getElementById('hs-estoque').textContent = estoqueItems;
+
+  // Badge de recados não lidos
+  if (unreadRecados > 0) {
+    const badge = document.createElement('span');
+    badge.className = 'app-card-badge';
+    badge.textContent = unreadRecados;
+    document.getElementById('app-recados').appendChild(badge);
+  }
+
+  // Próximos eventos (próximos 60 dias)
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dates = (datesRes.data || []).map(d => {
+    let evDate = new Date(d.date + 'T00:00:00');
+    if (d.repeat_yearly) {
+      evDate.setFullYear(today.getFullYear());
+      if (evDate < today) evDate.setFullYear(today.getFullYear() + 1);
+    }
+    const diff = Math.round((evDate - today) / 86400000);
+    return { ...d, evDate, diff };
+  }).filter(d => d.diff >= 0 && d.diff <= 60).sort((a,b) => a.diff - b.diff);
+
+  const list = document.getElementById('upcoming-list');
+  if (dates.length === 0) return;
+  list.innerHTML = '';
+  dates.slice(0, 5).forEach(d => {
+    const cls = d.diff === 0 ? 'days-today' : d.diff <= 7 ? 'days-soon' : 'days-ok';
+    const label = d.diff === 0 ? 'Hoje!' : d.diff === 1 ? 'Amanhã' : `${d.diff} dias`;
+    const el = document.createElement('a');
+    el.href = 'datas.html';
+    el.className = 'upcoming-item';
+    el.innerHTML = `
+      <div class="upcoming-icon" style="background:#fdf2f8">${d.category.split(' ')[0]}</div>
+      <div class="upcoming-body">
+        <div class="upcoming-title">${escapeHtml(d.title)}</div>
+        <div class="upcoming-sub">${d.evDate.toLocaleDateString('pt-BR', {day:'2-digit',month:'long'})}</div>
+      </div>
+      <span class="upcoming-days ${cls}">${label}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+init();
+</script>
 </body>
 </html>

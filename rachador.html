@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Nosso Lar ❤️ — Rachador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=11" />
+</head>
+<body>
+<div class="container">
+
+  <header class="hero" style="background:linear-gradient(135deg,#059669 0%,#10b981 50%,#34d399 100%)">
+    <div class="hero-emoji">✂️</div>
+    <h1>Rachador</h1>
+    <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+    <p class="hero-desc">Quem paga o quê? A conta fica justa aqui!</p>
+    <div class="user-badge" onclick="window.location.href='perfil.html'">
+      <div class="user-avatar" id="nav-avatar"><span id="nav-initial"></span></div>
+      <span id="nav-username">…</span>
+    </div>
+  </header>
+
+  <!-- Seletor de período -->
+  <div class="card">
+    <h2 class="section-title" style="margin-bottom:12px">📅 Período de análise</h2>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:130px">
+        <label style="font-size:.75rem;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">De</label>
+        <input type="date" id="date-from" class="task-input" style="width:100%" />
+      </div>
+      <div style="flex:1;min-width:130px">
+        <label style="font-size:.75rem;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">Até</label>
+        <input type="date" id="date-to"   class="task-input" style="width:100%" />
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button class="btn-add" onclick="calcular()" style="white-space:nowrap">Calcular ✂️</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="filter-btn" onclick="setMonth(0)">Este mês</button>
+      <button class="filter-btn" onclick="setMonth(-1)">Mês passado</button>
+      <button class="filter-btn" onclick="setAll()">Tudo</button>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div id="result-section" style="display:none">
+    <div class="rach-summary">
+      <div class="rach-person">
+        <div class="rach-person-name">💚 Aline gastou</div>
+        <div class="rach-person-total" id="rach-aline">R$ 0,00</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:4px" id="rach-aline-count">0 lançamentos</div>
+      </div>
+      <div class="rach-person">
+        <div class="rach-person-name">💜 Isabel gastou</div>
+        <div class="rach-person-total" id="rach-isabel">R$ 0,00</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:4px" id="rach-isabel-count">0 lançamentos</div>
+      </div>
+    </div>
+
+    <div class="rach-result" id="rach-result">
+      <div class="rach-result-label" id="rach-label">Calculando…</div>
+      <div class="rach-result-value" id="rach-value">R$ 0,00</div>
+      <div class="rach-result-sub"  id="rach-sub"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:12px">📋 Detalhamento por categoria</h2>
+      <div class="rach-detail" id="rach-detail"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title" style="margin-bottom:12px">🔍 Gastos compartilhados</h2>
+      <div id="shared-list" class="task-list"></div>
+    </div>
+  </div>
+
+  <div id="empty-rach" class="empty-state" style="padding:48px 0">
+    <span>✂️</span>
+    <p>Selecione um período e clique em<br><strong>Calcular</strong> para ver o balanço!</p>
+  </div>
+
+  <div style="height:90px"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"   class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></a>
+  <a href="tarefas.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
+  <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+  <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
+  <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+(function setupAvatar() {
+  const u = window.CURRENT_USER || '';
+  document.getElementById('nav-username').textContent = u;
+  document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+  const el = document.getElementById('nav-avatar');
+  const img = new Image();
+  img.onload = () => { el.style.backgroundImage = `url('${img.src}')`; document.getElementById('nav-initial').style.display = 'none'; };
+  img.src = `fotos/${u.toLowerCase()}.jpg`;
+})();
+</script>
+<script src="rachador.js?v=1"></script>
+</body>
+</html>

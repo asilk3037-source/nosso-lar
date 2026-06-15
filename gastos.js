@@ -3,7 +3,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let expenses = [];
-let currentPerson = 'Aline';
+let currentPerson  = 'Aline';
+let currentBillTab = 'unpaid';
 
 async function init() {
   await load();
@@ -21,79 +22,130 @@ async function load() {
 
 function switchPerson(person, btn) {
   currentPerson = person;
-
-  // sincroniza abas de pessoa
   document.querySelectorAll('.person-tab').forEach(b => b.classList.remove('active'));
   const activeTab = btn || document.getElementById(`tab-${person.toLowerCase()}`);
   if (activeTab) activeTab.classList.add('active');
-
-  // sincroniza stat cards
   document.querySelectorAll('.stat-card[data-person]').forEach(c => {
     c.classList.toggle('stat-active', c.dataset.person === person);
   });
-
-  document.getElementById('form-title').textContent    = `➕ Lançar Gasto — ${person}`;
-  document.getElementById('history-title').textContent = `📋 Histórico — ${person} (+ compartilhados)`;
+  document.getElementById('form-title').textContent    = `➕ Novo Lançamento — ${person}`;
+  document.getElementById('history-title').textContent = `📋 Histórico — ${person}`;
   render();
   document.querySelector('.tasks-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-async function addExpense() {
-  const desc  = document.getElementById('expense-desc').value.trim();
-  const cat   = document.getElementById('expense-cat').value;
-  const value = parseFloat(document.getElementById('expense-value').value);
+function switchBillTab(tab, btn) {
+  currentBillTab = tab;
+  document.querySelectorAll('.bill-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  render();
+}
 
-  if (!desc)          { showToast('✏️ Escreve a descrição!'); return; }
+async function addExpense() {
+  const desc      = document.getElementById('expense-desc').value.trim();
+  const cat       = document.getElementById('expense-cat').value;
+  const value     = parseFloat(document.getElementById('expense-value').value);
+  const due       = document.getElementById('expense-due').value || null;
+  const recurring = document.getElementById('expense-recurring').checked;
+
+  if (!desc)             { showToast('✏️ Escreve a descrição!'); return; }
   if (!value || value <= 0) { showToast('💰 Informe um valor válido!'); return; }
 
   const { error } = await db.from('expenses').insert([{
-    description: desc, category: cat, value, person: currentPerson
+    description: desc, category: cat, value,
+    person: currentPerson,
+    due_date: due, paid: false, recurring
   }]);
   if (error) { showToast('❌ ' + error.message); return; }
 
   document.getElementById('expense-desc').value  = '';
   document.getElementById('expense-value').value = '';
-  showToast('✅ Gasto adicionado!');
+  document.getElementById('expense-recurring').checked = false;
+  showToast('✅ Lançamento adicionado!');
+}
+
+async function togglePaid(id, current) {
+  const { error } = await db.from('expenses').update({ paid: !current }).eq('id', id);
+  if (error) showToast('❌ Erro ao atualizar.');
+  else showToast(!current ? '✅ Marcado como pago!' : '🔄 Marcado como pendente!');
 }
 
 async function deleteExpense(id) {
-  if (!confirm('Excluir esse gasto?')) return;
+  if (!confirm('Excluir esse lançamento?')) return;
   const { error } = await db.from('expenses').delete().eq('id', id);
   if (error) { showToast('❌ Erro ao excluir.'); return; }
   showToast('🗑️ Excluído.');
 }
 
+function getDueCls(dueDateStr, paid) {
+  if (paid) return 'noDue';
+  if (!dueDateStr) return 'noDue';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due   = new Date(dueDateStr + 'T00:00:00');
+  const diff  = Math.round((due - today) / 86400000);
+  if (diff < 0)  return 'overdue';
+  if (diff === 0) return 'today';
+  return 'future';
+}
+
+function getDueLabel(dueDateStr, paid) {
+  if (paid || !dueDateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due   = new Date(dueDateStr + 'T00:00:00');
+  const diff  = Math.round((due - today) / 86400000);
+  if (diff < 0)  return `⚠️ Venceu há ${Math.abs(diff)} dia${Math.abs(diff)>1?'s':''}`;
+  if (diff === 0) return '⚡ Vence hoje!';
+  return `📅 Vence em ${diff} dia${diff>1?'s':''}`;
+}
+
 function render() {
-  // Totais individuais (gastos pessoais de cada uma)
   const totalAline  = expenses.filter(e => e.person === 'Aline').reduce((s, e) => s + Number(e.value), 0);
   const totalIsabel = expenses.filter(e => e.person === 'Isabel').reduce((s, e) => s + Number(e.value), 0);
-  // Total geral = todos os gastos (incluindo compartilhados Aline + Isabel)
   const totalGeral  = expenses.reduce((s, e) => s + Number(e.value), 0);
+  const totalUnpaid = expenses.filter(e => !e.paid).length;
+
   document.getElementById('total-aline').textContent  = fmt(totalAline);
   document.getElementById('total-isabel').textContent = fmt(totalIsabel);
   document.getElementById('total-geral').textContent  = fmt(totalGeral);
+  document.getElementById('total-unpaid').textContent = totalUnpaid;
 
-  // Lista filtrada: mostra gastos da pessoa + gastos compartilhados
-  const list    = document.getElementById('expense-list');
-  const empty   = document.getElementById('expense-empty');
-  const filtered = expenses.filter(e => e.person === currentPerson || e.person === 'Aline + Isabel');
-  list.querySelectorAll('.task-item').forEach(el => el.remove());
+  let filtered = expenses.filter(e => e.person === currentPerson || e.person === 'Aline + Isabel');
+  if (currentBillTab === 'unpaid') filtered = filtered.filter(e => !e.paid);
+  if (currentBillTab === 'paid')   filtered = filtered.filter(e => e.paid);
+
+  const list  = document.getElementById('expense-list');
+  const empty = document.getElementById('expense-empty');
+  list.querySelectorAll('.bill-item').forEach(el => el.remove());
 
   if (filtered.length === 0) { empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
 
   filtered.forEach(exp => {
+    const dueCls   = getDueCls(exp.due_date, exp.paid);
+    const dueLabel = getDueLabel(exp.due_date, exp.paid);
     const item = document.createElement('div');
-    item.className = 'task-item';
+    item.className = `bill-item ${!exp.paid ? 'unpaid' : 'paid-done'}`;
     item.innerHTML = `
-      <div class="task-body">
-        <span class="task-name">${escapeHtml(exp.description)}</span>
-        <div class="task-meta">
+      <div class="task-check ${exp.paid ? 'paid-check' : ''}" style="
+        width:22px;height:22px;min-width:22px;border-radius:7px;cursor:pointer;
+        border:2.5px solid ${exp.paid ? 'transparent' : 'var(--border)'};
+        background:${exp.paid ? 'var(--gradient,#16a34a)' : 'var(--bg)'};
+        display:flex;align-items:center;justify-content:center;font-size:.7rem;color:white;font-weight:800;
+        transition:all .15s;flex-shrink:0"
+        onclick="togglePaid('${exp.id}', ${exp.paid})" title="${exp.paid ? 'Marcar como pendente' : 'Marcar como pago'}">
+        ${exp.paid ? '✓' : ''}
+      </div>
+      <div class="bill-body">
+        <div class="bill-name">${escapeHtml(exp.description)}</div>
+        <div class="bill-meta">
           <span class="tag tag-category">${escapeHtml(exp.category)}</span>
           <span class="tag tag-value">R$ ${Number(exp.value).toFixed(2).replace('.',',')}</span>
-          <span class="tag tag-date">${new Date(exp.created_at).toLocaleDateString('pt-BR')}</span>
+          ${dueLabel ? `<span class="bill-due ${dueCls}">${dueLabel}</span>` : ''}
+          ${exp.recurring ? '<span class="tag" style="background:#ede9fe;color:#7c3aed">🔁 Recorrente</span>' : ''}
+          ${exp.person === 'Aline + Isabel' ? '<span class="tag" style="background:#e0f2fe;color:#0369a1">👥 Compartilhado</span>' : ''}
         </div>
       </div>
+      ${!exp.paid ? `<button class="btn-pay" onclick="togglePaid('${exp.id}', false)">💳 Pagar</button>` : ''}
       <button class="btn-delete" onclick="deleteExpense('${exp.id}')">🗑️</button>
     `;
     list.appendChild(item);
@@ -111,9 +163,11 @@ function showToast(msg) {
   t._timeout = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-window.addExpense    = addExpense;
+window.addExpense   = addExpense;
 window.deleteExpense = deleteExpense;
-window.switchPerson  = switchPerson;
+window.switchPerson = switchPerson;
+window.switchBillTab = switchBillTab;
+window.togglePaid   = togglePaid;
 
 document.getElementById('expense-value').addEventListener('keydown', e => {
   if (e.key === 'Enter') addExpense();

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Nosso Lar ❤️ — Recados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=11" />
+</head>
+<body>
+<div class="container">
+
+  <header class="hero" style="background:linear-gradient(135deg,#e879a8 0%,#c084fc 60%,#a78bfa 100%)">
+    <div class="hero-emoji">💬</div>
+    <h1>Recados</h1>
+    <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+    <p class="hero-desc">Deixe um recado para a sua parceira de lar!</p>
+    <div class="user-badge" onclick="window.location.href='perfil.html'">
+      <div class="user-avatar" id="nav-avatar"><span id="nav-initial"></span></div>
+      <span id="nav-username">…</span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-num pink" id="stat-total-rec">0</span>
+      <span class="stat-label">Total de recados</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" id="stat-unread">0</span>
+      <span class="stat-label">Não lidos</span>
+    </div>
+    <div class="stat-card" style="grid-column:span 2">
+      <span class="stat-num green" id="stat-from-me">0</span>
+      <span class="stat-label">Enviados por mim</span>
+    </div>
+  </div>
+
+  <div class="recado-form">
+    <h2 class="section-title" style="margin-bottom:12px">✏️ Novo Recado</h2>
+    <textarea id="recado-input" class="recado-textarea" placeholder="Escreva um recado para a sua parceira…" maxlength="500"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <span id="char-count" style="font-size:.78rem;color:var(--muted);font-weight:600">0 / 500</span>
+      <button class="btn-add" onclick="sendRecado()" style="padding:10px 24px">Enviar 💌</button>
+    </div>
+  </div>
+
+  <section class="tasks-section">
+    <div class="section-header">
+      <h2 class="section-title">📨 Todos os Recados</h2>
+      <button class="btn-import" onclick="markAllRead()" id="btn-mark-all">✅ Marcar tudo lido</button>
+    </div>
+    <div id="recado-list" class="recado-list">
+      <div class="empty-state" id="recado-empty">
+        <span>💌</span>
+        <p>Nenhum recado ainda!<br>Envie o primeiro acima.</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:90px"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"   class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></a>
+  <a href="tarefas.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
+  <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+  <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
+  <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+(function setupAvatar() {
+  const u = window.CURRENT_USER || '';
+  document.getElementById('nav-username').textContent = u;
+  document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+  const el = document.getElementById('nav-avatar');
+  const img = new Image();
+  img.onload = () => { el.style.backgroundImage = `url('${img.src}')`; document.getElementById('nav-initial').style.display = 'none'; };
+  img.src = `fotos/${u.toLowerCase()}.jpg`;
+})();
+document.getElementById('recado-input').addEventListener('input', function() {
+  document.getElementById('char-count').textContent = `${this.value.length} / 500`;
+});
+</script>
+<script src="recados.js?v=1"></script>
+</body>
+</html>

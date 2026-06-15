@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Nosso Lar ❤️ — Estoque</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=11" />
+</head>
+<body>
+<div class="container">
+
+  <header class="hero hero-blue">
+    <div class="hero-emoji">📦</div>
+    <h1>Estoque</h1>
+    <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+    <p class="hero-desc">Controle o que tem em casa e nunca falte nada!</p>
+    <div class="user-badge" onclick="window.location.href='perfil.html'">
+      <div class="user-avatar" id="nav-avatar"><span id="nav-initial"></span></div>
+      <span id="nav-username">…</span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-num pink" id="s-total">0</span>
+      <span class="stat-label">Itens cadastrados</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num orange" id="s-low">0</span>
+      <span class="stat-label">Estoque baixo</span>
+    </div>
+    <div class="stat-card" style="grid-column:span 2">
+      <span class="stat-num green" id="s-ok">0</span>
+      <span class="stat-label">Itens em quantidade OK</span>
+    </div>
+  </div>
+
+  <section class="add-task-section">
+    <h2 class="section-title" style="margin-bottom:14px">📦 Adicionar Item</h2>
+    <div class="add-task-form">
+      <input type="text" id="s-nome"    class="task-input" placeholder="Nome do produto…" maxlength="60" style="flex:1 1 180px" />
+      <select id="s-cat" class="task-select">
+        <option value="🥩 Carnes">🥩 Carnes</option>
+        <option value="🥛 Laticínios">🥛 Laticínios</option>
+        <option value="🌾 Grãos">🌾 Grãos</option>
+        <option value="🥫 Enlatados">🥫 Enlatados</option>
+        <option value="🥦 Hortifruti">🥦 Hortifruti</option>
+        <option value="🧹 Limpeza">🧹 Limpeza</option>
+        <option value="🧴 Higiene">🧴 Higiene</option>
+        <option value="🐾 Pet">🐾 Pet</option>
+        <option value="🏠 Outros">🏠 Outros</option>
+      </select>
+      <input type="number" id="s-qty"   class="task-input" placeholder="Qtd atual" min="0" step="1" style="max-width:100px;flex:0 1 100px" />
+      <input type="number" id="s-min"   class="task-input" placeholder="Qtd mínima" min="0" step="1" style="max-width:110px;flex:0 1 110px" />
+      <select id="s-unit" class="task-select">
+        <option value="unid">unid</option>
+        <option value="pct">pct</option>
+        <option value="cx">cx</option>
+        <option value="lata">lata</option>
+        <option value="kg">kg</option>
+        <option value="L">L</option>
+        <option value="fardo">fardo</option>
+      </select>
+      <button class="btn-add" onclick="addItem()">Adicionar</button>
+    </div>
+  </section>
+
+  <div class="filter-section">
+    <div class="filters">
+      <button class="filter-btn active" onclick="setStockFilter('all',  this)">Todos</button>
+      <button class="filter-btn"        onclick="setStockFilter('low',  this)">⚠️ Baixo estoque</button>
+      <button class="filter-btn"        onclick="setStockFilter('ok',   this)">✅ Em quantidade</button>
+    </div>
+  </div>
+
+  <section class="tasks-section">
+    <div class="section-header">
+      <h2 class="section-title">📦 Itens em estoque</h2>
+      <button class="btn-finish" id="btn-add-all-low" onclick="addAllLowToCart()" style="background:var(--pink)">🛒 Add baixos à lista</button>
+    </div>
+    <div id="stock-list" class="task-list">
+      <div class="empty-state" id="stock-empty">
+        <span>📦</span>
+        <p>Estoque vazio!<br>Adicione o primeiro item acima.</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:90px"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"   class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></a>
+  <a href="tarefas.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
+  <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+  <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
+  <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+(function setupAvatar() {
+  const u = window.CURRENT_USER || '';
+  document.getElementById('nav-username').textContent = u;
+  document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+  const el = document.getElementById('nav-avatar');
+  const img = new Image();
+  img.onload = () => { el.style.backgroundImage = `url('${img.src}')`; document.getElementById('nav-initial').style.display = 'none'; };
+  img.src = `fotos/${u.toLowerCase()}.jpg`;
+})();
+</script>
+<script src="estoque.js?v=1"></script>
+</body>
+</html>
