@@ -71,9 +71,22 @@ async function deleteTask(id) {
 // ── FILTROS ────────────────────────────────────────────
 function setFilter(filter, btn) {
   currentFilter = filter;
+
+  // sincroniza botões de filtro
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const match = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+    if (match) match.classList.add('active');
+  }
+
+  // sincroniza stat cards
+  document.querySelectorAll('.stat-card[data-filter]').forEach(c => {
+    c.classList.toggle('stat-active', c.dataset.filter === filter);
+  });
+
   render();
+  document.querySelector('.tasks-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function getFiltered() {

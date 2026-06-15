@@ -26,15 +26,15 @@
     </header>
 
     <div class="stats" id="stats">
-      <div class="stat-card">
+      <div class="stat-card stat-active" data-filter="all" onclick="setFilter('all')">
         <span class="stat-num" id="stat-total">0</span>
         <span class="stat-label">Total de Tarefas</span>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-filter="done" onclick="setFilter('done')">
         <span class="stat-num green" id="stat-done">0</span>
         <span class="stat-label">Concluídas</span>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-filter="pending" onclick="setFilter('pending')">
         <span class="stat-num pink" id="stat-pending">0</span>
         <span class="stat-label">Pendentes</span>
       </div>
@@ -74,11 +74,11 @@
 
     <section class="filter-section">
       <div class="filters">
-        <button class="filter-btn active" onclick="setFilter('all', this)">Todas</button>
-        <button class="filter-btn" onclick="setFilter('pending', this)">Pendentes</button>
-        <button class="filter-btn" onclick="setFilter('done', this)">Concluídas</button>
-        <button class="filter-btn" onclick="setFilter('Aline', this)">Aline</button>
-        <button class="filter-btn" onclick="setFilter('Isabel', this)">Isabel</button>
+        <button class="filter-btn active" data-filter="all"     onclick="setFilter('all', this)">Todas</button>
+        <button class="filter-btn"        data-filter="pending" onclick="setFilter('pending', this)">Pendentes</button>
+        <button class="filter-btn"        data-filter="done"    onclick="setFilter('done', this)">Concluídas</button>
+        <button class="filter-btn"        data-filter="Aline"   onclick="setFilter('Aline', this)">Aline</button>
+        <button class="filter-btn"        data-filter="Isabel"  onclick="setFilter('Isabel', this)">Isabel</button>
       </div>
     </section>
 

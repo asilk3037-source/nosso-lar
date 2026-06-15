@@ -188,6 +188,25 @@ body {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
+
+/* Stat cards clicáveis (filtro) */
+.stat-card[data-filter],
+.stat-card[data-person],
+.stat-card[data-compras] {
+  cursor: pointer;
+  user-select: none;
+}
+.stat-card[data-filter]:hover,
+.stat-card[data-person]:hover,
+.stat-card[data-compras]:hover {
+  border-color: var(--pink-light);
+}
+.stat-card.stat-active {
+  background: var(--pink-light);
+  border-color: var(--pink) !important;
+  box-shadow: 0 0 0 3px rgba(244,114,182,.15), var(--shadow);
+}
+.stat-card.stat-active .stat-label { color: var(--pink-dark); }
 .stat-num {
   font-family: 'Playfair Display', serif;
   font-size: 1.75rem;
@@ -786,6 +805,68 @@ body {
 }
 .btn-confirm-import:hover { opacity: .9; }
 .btn-confirm-import:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── PROFILE SWITCHER ── */
+.profile-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border);
+}
+.profile-pick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: transform .15s;
+}
+.profile-pick-btn:hover { transform: scale(1.06); }
+.pick-mini-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--purple-light) center/cover no-repeat;
+  border: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--purple-dark);
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.pick-mini-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-pick-btn.active .pick-mini-photo {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(244,114,182,.25);
+}
+.pick-label {
+  font-size: .8rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.profile-pick-btn.active .pick-label { color: var(--pink-dark); }
+.switcher-heart {
+  font-size: 1.3rem;
+  animation: heartbeat 1.4s ease infinite;
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {

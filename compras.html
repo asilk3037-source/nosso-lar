@@ -64,17 +64,17 @@
 
     <!-- STATS -->
     <div class="stats">
-      <div class="stat-card">
+      <div class="stat-card stat-active" data-compras="all" onclick="filterCompras('all')">
         <span class="stat-num" id="stat-itens">0</span>
-        <span class="stat-label">Itens</span>
+        <span class="stat-label">Todos os itens</span>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-compras="checked" onclick="filterCompras('checked')">
         <span class="stat-num orange" id="stat-checked">0</span>
         <span class="stat-label">No carrinho</span>
       </div>
       <div class="stat-card" style="grid-column:span 2">
         <span class="stat-num green" id="stat-total-compra">R$ 0,00</span>
-        <span class="stat-label">Total da compra</span>
+        <span class="stat-label">Total da compra (itens marcados)</span>
       </div>
     </div>
 

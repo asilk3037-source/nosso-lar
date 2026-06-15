@@ -233,6 +233,25 @@
 <body>
   <div class="container">
 
+    <!-- SELETOR DE PESSOA -->
+    <div class="profile-switcher" id="profile-switcher">
+      <button class="profile-pick-btn active" id="pick-me" onclick="viewProfile(window.CURRENT_USER)">
+        <div class="pick-mini-photo" id="pick-photo-me">
+          <span id="pick-initial-me">?</span>
+          <img id="pick-img-me" src="" alt="" onerror="this.remove()" />
+        </div>
+        <span class="pick-label" id="pick-label-me">Eu</span>
+      </button>
+      <span class="switcher-heart">❤️</span>
+      <button class="profile-pick-btn" id="pick-other" onclick="viewProfile(OTHERS[window.CURRENT_USER])">
+        <div class="pick-mini-photo" id="pick-photo-other">
+          <span id="pick-initial-other">?</span>
+          <img id="pick-img-other" src="" alt="" onerror="this.remove()" />
+        </div>
+        <span class="pick-label" id="pick-label-other">…</span>
+      </button>
+    </div>
+
     <!-- HERO COM FOTO -->
     <div class="profile-hero">
       <div class="profile-photo-wrap" id="profile-photo-wrap">
@@ -240,12 +259,12 @@
         <img id="profile-photo" src="" alt="" onerror="this.remove()" />
       </div>
       <div class="profile-name" id="profile-name">…</div>
-      <div class="profile-since">Membro do Nosso Lar ❤️</div>
+      <div class="profile-since" id="profile-since">Membro do Nosso Lar ❤️</div>
     </div>
 
     <!-- STATS PESSOAIS -->
     <div class="profile-section">
-      <h2 class="profile-section-title">📊 Meu resumo</h2>
+      <h2 class="profile-section-title" id="stats-title">📊 Meu resumo</h2>
       <div class="profile-stats">
         <div class="profile-stat">
           <span class="profile-stat-num" id="st-gastos">–</span>
@@ -262,21 +281,6 @@
         <div class="profile-stat">
           <span class="profile-stat-num" id="st-concluidas">–</span>
           <span class="profile-stat-label">Tarefas concluídas</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- OUTRA PESSOA -->
-    <div class="profile-section">
-      <h2 class="profile-section-title">🏠 Morando junto</h2>
-      <div class="other-profile">
-        <div class="other-photo-wrap" id="other-photo-wrap">
-          <span id="other-initial">?</span>
-          <img id="other-photo" src="" alt="" onerror="this.remove()" />
-        </div>
-        <div>
-          <div class="other-name" id="other-name">…</div>
-          <div class="other-role">Divide o lar com você ❤️</div>
         </div>
       </div>
     </div>
@@ -384,65 +388,83 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const OTHERS   = { Aline: 'Isabel', Isabel: 'Aline' };
-    const PWD_KEY  = u => `lar_pwd_${u}`;
+    const OTHERS       = { Aline: 'Isabel', Isabel: 'Aline' };
+    const PWD_KEY      = u => `lar_pwd_${u}`;
     const DEFAULT_PWDS = { Aline: 'aline123', Isabel: 'isabel123' };
     function getCurrentPwd(user) {
       return sessionStorage.getItem(PWD_KEY(user)) || DEFAULT_PWDS[user];
     }
 
-    function loadPhoto(wrapEl, imgEl, initialEl, name) {
+    // Cache dos dados carregados
+    let allExpenses = [];
+    let allTasks    = [];
+
+    function applyPhoto(wrapEl, initialEl, name) {
       const src = `fotos/${name.toLowerCase()}.jpg`;
       initialEl.textContent = name[0] || '?';
-      imgEl.src = src;
-      imgEl.onerror = () => {
-        imgEl.remove();
-      };
-      const testImg = new Image();
-      testImg.onload = () => {
+      const img = new Image();
+      img.onload = () => {
         wrapEl.style.backgroundImage = `url('${src}')`;
         initialEl.style.display = 'none';
       };
-      testImg.src = src;
+      img.src = src;
     }
 
-    async function init() {
-      const user  = window.CURRENT_USER;
+    function viewProfile(user) {
+      const me    = window.CURRENT_USER;
       const other = OTHERS[user];
 
-      // Fotos
-      loadPhoto(
-        document.getElementById('profile-photo-wrap'),
-        document.getElementById('profile-photo'),
-        document.getElementById('profile-initial'),
-        user
-      );
-      loadPhoto(
-        document.getElementById('other-photo-wrap'),
-        document.getElementById('other-photo'),
-        document.getElementById('other-initial'),
-        other
-      );
+      // Atualiza seletor
+      document.getElementById('pick-me').classList.toggle('active',    user === me);
+      document.getElementById('pick-other').classList.toggle('active', user !== me);
 
+      // Atualiza hero
+      const heroWrap    = document.getElementById('profile-photo-wrap');
+      const heroInitial = document.getElementById('profile-initial');
+      heroWrap.style.backgroundImage = '';
+      heroInitial.style.display = '';
+      applyPhoto(heroWrap, heroInitial, user);
       document.getElementById('profile-name').textContent = user;
-      document.getElementById('other-name').textContent   = other;
+      document.getElementById('profile-since').textContent =
+        user === me ? 'Membro do Nosso Lar ❤️' : 'Companheira de lar ❤️';
+      document.getElementById('stats-title').textContent =
+        user === me ? '📊 Meu resumo' : `📊 Resumo de ${user}`;
 
-      // Stats de gastos
-      const { data: expData } = await db.from('expenses').select('value,person');
-      const myExp = (expData || []).filter(e =>
+      // Recalcula stats
+      const myExp = allExpenses.filter(e =>
         e.person === user || e.person === 'Aline + Isabel'
       );
       document.getElementById('st-gastos').textContent = myExp.length;
       const total = myExp.reduce((s, e) => s + Number(e.value), 0);
       document.getElementById('st-total').textContent  = 'R$' + total.toFixed(0);
 
-      // Stats de tarefas
-      const { data: taskData } = await db.from('tasks').select('done,responsible');
-      const myTasks = (taskData || []).filter(t =>
+      const myTasks = allTasks.filter(t =>
         t.responsible === user || t.responsible === 'Aline + Isabel'
       );
       document.getElementById('st-tarefas').textContent    = myTasks.length;
       document.getElementById('st-concluidas').textContent = myTasks.filter(t => t.done).length;
+    }
+
+    async function init() {
+      const me    = window.CURRENT_USER;
+      const other = OTHERS[me];
+
+      // Monta o seletor
+      applyPhoto(document.getElementById('pick-photo-me'),    document.getElementById('pick-initial-me'),    me);
+      applyPhoto(document.getElementById('pick-photo-other'), document.getElementById('pick-initial-other'), other);
+      document.getElementById('pick-label-me').textContent    = me;
+      document.getElementById('pick-label-other').textContent = other;
+
+      // Carrega dados
+      const [expRes, taskRes] = await Promise.all([
+        db.from('expenses').select('value,person'),
+        db.from('tasks').select('done,responsible'),
+      ]);
+      allExpenses = expRes.data || [];
+      allTasks    = taskRes.data || [];
+
+      // Mostra perfil do usuário logado por padrão
+      viewProfile(me);
     }
 
     function confirmLogout() {
@@ -495,6 +517,8 @@
       t._t = setTimeout(() => t.classList.remove('show'), 2600);
     }
 
+    window.viewProfile = viewProfile;
+    window.OTHERS      = OTHERS;
     init();
   </script>
 </body>

@@ -4,7 +4,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let items = [];
-let listFilter = '';
+let listFilter      = '';
+let comprasFilter   = 'all'; // 'all' | 'checked'
 
 // Unidades que multiplicam (contáveis)
 const MULTIPLY_UNITS = new Set(['unid', 'pct', 'cx', 'lata', 'sac', 'fardo']);
@@ -212,6 +213,16 @@ function clearSearch() {
   onSearch('');
 }
 
+// ── FILTRO DE STATUS (todos / carrinho) ───────────────
+function filterCompras(mode) {
+  comprasFilter = mode;
+  document.querySelectorAll('.stat-card[data-compras]').forEach(c => {
+    c.classList.toggle('stat-active', c.dataset.compras === mode);
+  });
+  render();
+  document.querySelector('.tasks-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 // ── BUSCA NA LISTA ─────────────────────────────────────
 function filterList(q) {
   listFilter = q.trim().toLowerCase();
@@ -314,9 +325,10 @@ async function finishShopping() {
 const UNIT_OPTIONS = ['unid','pct','cx','lata','kg','g','L','ml','fardo','sac'];
 
 function render() {
-  const visibleItems = listFilter
+  let visibleItems = listFilter
     ? items.filter(i => i.name.toLowerCase().includes(listFilter))
     : items;
+  if (comprasFilter === 'checked') visibleItems = visibleItems.filter(i => i.checked);
 
   const total   = items.reduce((s, i) => s + (i.checked ? calcItemTotal(i) : 0), 0);
   const checked = items.filter(i => i.checked).length;
@@ -427,6 +439,7 @@ window.deleteItem       = deleteItem;
 window.finishShopping   = finishShopping;
 window.filterList       = filterList;
 window.clearListSearch  = clearListSearch;
+window.filterCompras    = filterCompras;
 window.goProfile        = goProfile;
 
 // ── ENTER no input ────────────────────────────────────

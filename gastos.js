@@ -21,11 +21,21 @@ async function load() {
 
 function switchPerson(person, btn) {
   currentPerson = person;
+
+  // sincroniza abas de pessoa
   document.querySelectorAll('.person-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  const activeTab = btn || document.getElementById(`tab-${person.toLowerCase()}`);
+  if (activeTab) activeTab.classList.add('active');
+
+  // sincroniza stat cards
+  document.querySelectorAll('.stat-card[data-person]').forEach(c => {
+    c.classList.toggle('stat-active', c.dataset.person === person);
+  });
+
   document.getElementById('form-title').textContent    = `➕ Lançar Gasto — ${person}`;
   document.getElementById('history-title').textContent = `📋 Histórico — ${person} (+ compartilhados)`;
   render();
+  document.querySelector('.tasks-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 async function addExpense() {
