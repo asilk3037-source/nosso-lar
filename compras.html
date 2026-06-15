@@ -6,9 +6,9 @@
   <title>Nosso Lar ❤️ — Lista de Compras</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=9" />
-  <link rel="stylesheet" href="compras.css?v=9" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="compras.css?v=10" />
 </head>
 <body class="compras-page">
 
@@ -22,7 +22,7 @@
       <div class="cat-search-wrap">
         <span class="cat-search-icon">🔍</span>
         <input id="cat-search" class="cat-search" type="text"
-          placeholder="Buscar produto…" oninput="onSearch(this.value)" />
+          placeholder="Buscar produto no catálogo…" oninput="onSearch(this.value)" />
         <button class="cat-search-clear hidden" id="clear-search" onclick="clearSearch()">✕</button>
       </div>
 
@@ -55,7 +55,9 @@
       <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
       <p class="hero-desc">Monte a lista antes de sair e dê check no mercado!</p>
       <div class="user-badge" onclick="goProfile()">
-        <span class="user-badge-avatar" id="nav-avatar">👤</span>
+        <div class="user-avatar" id="nav-avatar">
+          <span id="nav-initial"></span>
+        </div>
         <span id="nav-username">…</span>
       </div>
     </header>
@@ -76,9 +78,18 @@
       </div>
     </div>
 
+    <!-- BUSCA NA LISTA (sempre visível) -->
+    <div class="list-search-wrap">
+      <span class="list-search-icon">🔍</span>
+      <input type="text" id="list-search" class="list-search-input"
+        placeholder="Buscar item na lista…" oninput="filterList(this.value)" />
+      <button class="list-search-clear hidden" id="list-search-clear"
+        onclick="clearListSearch()">✕</button>
+    </div>
+
     <!-- AÇÕES -->
     <div class="action-row">
-      <button class="btn-catalog" onclick="openCatalog()">🗂️ Catálogo</button>
+      <button class="btn-catalog" onclick="openCatalog()">🗂️ Catálogo de produtos</button>
       <button class="btn-manual-toggle" onclick="toggleManual()" id="btn-manual-toggle">✏️ Digitar</button>
     </div>
 
@@ -121,15 +132,6 @@
       </div>
     </div>
 
-    <!-- BUSCA NA LISTA -->
-    <div class="list-search-wrap">
-      <span class="list-search-icon">🔍</span>
-      <input type="text" id="list-search" class="list-search-input"
-        placeholder="Buscar na lista…" oninput="filterList(this.value)" />
-      <button class="list-search-clear hidden" id="list-search-clear"
-        onclick="clearListSearch()">✕</button>
-    </div>
-
     <!-- LISTA -->
     <section class="tasks-section">
       <div class="section-header">
@@ -156,8 +158,23 @@
   </nav>
 
   <div class="toast" id="toast"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
-  <script src="compras.js?v=9"></script>
+  <script>
+    (function setupAvatar() {
+      const u = window.CURRENT_USER || '';
+      document.getElementById('nav-username').textContent = u;
+      document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+      const avatarEl = document.getElementById('nav-avatar');
+      const img = new Image();
+      img.onload = () => {
+        avatarEl.style.backgroundImage = `url('${img.src}')`;
+        document.getElementById('nav-initial').style.display = 'none';
+      };
+      img.src = `fotos/${u.toLowerCase()}.jpg`;
+    })();
+  </script>
+  <script src="compras.js?v=10"></script>
 </body>
 </html>

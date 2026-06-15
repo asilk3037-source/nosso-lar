@@ -24,7 +24,7 @@ function switchPerson(person, btn) {
   document.querySelectorAll('.person-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('form-title').textContent    = `➕ Lançar Gasto — ${person}`;
-  document.getElementById('history-title').textContent = `📋 Histórico — ${person}`;
+  document.getElementById('history-title').textContent = `📋 Histórico — ${person} (+ compartilhados)`;
   render();
 }
 
@@ -54,17 +54,19 @@ async function deleteExpense(id) {
 }
 
 function render() {
-  // totais gerais
+  // Totais individuais (gastos pessoais de cada uma)
   const totalAline  = expenses.filter(e => e.person === 'Aline').reduce((s, e) => s + Number(e.value), 0);
   const totalIsabel = expenses.filter(e => e.person === 'Isabel').reduce((s, e) => s + Number(e.value), 0);
+  // Total geral = todos os gastos (incluindo compartilhados Aline + Isabel)
+  const totalGeral  = expenses.reduce((s, e) => s + Number(e.value), 0);
   document.getElementById('total-aline').textContent  = fmt(totalAline);
   document.getElementById('total-isabel').textContent = fmt(totalIsabel);
-  document.getElementById('total-geral').textContent  = fmt(totalAline + totalIsabel);
+  document.getElementById('total-geral').textContent  = fmt(totalGeral);
 
-  // lista filtrada pela pessoa ativa
+  // Lista filtrada: mostra gastos da pessoa + gastos compartilhados
   const list    = document.getElementById('expense-list');
   const empty   = document.getElementById('expense-empty');
-  const filtered = expenses.filter(e => e.person === currentPerson);
+  const filtered = expenses.filter(e => e.person === currentPerson || e.person === 'Aline + Isabel');
   list.querySelectorAll('.task-item').forEach(el => el.remove());
 
   if (filtered.length === 0) { empty.classList.remove('hidden'); return; }

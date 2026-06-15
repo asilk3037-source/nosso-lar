@@ -1,0 +1,9 @@
+Coloque as fotos aqui com os nomes exatos:
+
+  aline.jpg   ← sua foto (Aline)
+  isabel.jpg  ← foto da Isabel
+
+Formato aceito: JPG ou JPEG
+Recomendado: foto quadrada (ex: selfie recortada)
+
+Depois de salvar as fotos aqui, recarregue o site!

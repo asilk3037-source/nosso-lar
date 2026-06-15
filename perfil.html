@@ -6,117 +6,240 @@
   <title>Nosso Lar ❤️ — Perfil</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=10" />
   <style>
+    /* Hero do perfil */
     .profile-hero {
       background: var(--gradient);
-      border-radius: 28px; padding: 44px 28px 32px;
-      text-align: center; color: white;
-      box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+      border-radius: 28px;
+      padding: 40px 24px 32px;
+      text-align: center;
+      color: white;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
     }
     .profile-hero::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(circle at 30% 80%, rgba(255,255,255,.1) 0%, transparent 60%);
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 70%);
+      pointer-events: none;
     }
-    .profile-avatar {
-      width: 88px; height: 88px; border-radius: 50%;
-      background: rgba(255,255,255,.25);
-      font-size: 3rem; display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 14px; border: 3px solid rgba(255,255,255,.4);
+
+    /* Foto de perfil grande */
+    .profile-photo-wrap {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      background: rgba(255,255,255,.28) center/cover no-repeat;
+      border: 4px solid rgba(255,255,255,.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+    }
+    .profile-photo-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .profile-name {
-      font-family: 'Playfair Display', serif; font-size: 2rem;
-      font-weight: 700; margin-bottom: 4px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
-    .profile-since { font-size: .85rem; opacity: .8; }
+    .profile-since { font-size: .85rem; opacity: .82; font-weight: 600; }
 
+    /* Seções */
     .profile-section {
-      background: var(--surface); border-radius: var(--radius);
-      padding: 24px; box-shadow: var(--shadow); border: 1.5px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      border: 1.5px solid var(--border);
     }
     .profile-section-title {
-      font-family: 'Playfair Display', serif; font-size: 1.1rem;
-      color: var(--text); margin-bottom: 16px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--text);
+      margin-bottom: 14px;
     }
 
     /* Stats grid */
-    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .profile-stat {
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); padding: 16px;
-      display: flex; flex-direction: column; gap: 4px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .profile-stat-num {
-      font-family: 'Playfair Display', serif; font-size: 1.7rem;
-      font-weight: 700; color: var(--pink); line-height: 1;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--pink);
+      line-height: 1;
     }
-    .profile-stat-label { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .profile-stat-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
 
-    /* menu list */
+    /* Menu */
     .menu-list { display: flex; flex-direction: column; gap: 2px; }
     .menu-item {
-      display: flex; align-items: center; gap: 14px;
-      padding: 15px 12px; border-radius: var(--radius-sm);
-      cursor: pointer; transition: background .15s;
-      border: none; background: none; width: 100%;
-      font-family: 'Inter', sans-serif; text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .15s;
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      text-decoration: none;
     }
     .menu-item:hover { background: var(--bg); }
     .menu-item-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; background: var(--purple-light); flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      background: var(--purple-light);
+      flex-shrink: 0;
     }
     .menu-item-icon.pink  { background: var(--pink-light); }
     .menu-item-icon.green { background: #dcfce7; }
     .menu-item-icon.red   { background: #fee2e2; }
     .menu-item-body { flex: 1; text-align: left; }
-    .menu-item-label { font-size: .93rem; font-weight: 600; color: var(--text); }
+    .menu-item-label { font-size: .93rem; font-weight: 700; color: var(--text); }
     .menu-item-desc  { font-size: .78rem; color: var(--muted); margin-top: 1px; }
-    .menu-item-arrow { color: var(--muted); font-size: .85rem; }
-
+    .menu-item-arrow { color: var(--muted); font-size: .9rem; }
     .divider { height: 1px; background: var(--border); margin: 4px 0; }
 
-    /* modal senha */
-    .pwd-modal-body { padding: 20px 24px 4px; display: flex; flex-direction: column; gap: 14px; }
+    /* Card da outra pessoa */
+    .other-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+    }
+    .other-photo-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--purple-light) center/cover no-repeat;
+      border: 2.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--purple-dark);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .other-photo-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .other-name { font-size: .95rem; font-weight: 700; color: var(--text); }
+    .other-role { font-size: .78rem; color: var(--muted); font-weight: 600; }
+
+    /* Modal senha */
+    .pwd-modal-body {
+      padding: 20px 24px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
     .pwd-field { display: flex; flex-direction: column; gap: 6px; }
-    .pwd-label { font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .pwd-label {
+      font-size: .78rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
     .pwd-input {
-      padding: 12px 14px; border: 2px solid var(--border); border-radius: var(--radius-sm);
-      font-size: .93rem; font-family: 'Inter', sans-serif; color: var(--text);
-      background: var(--bg); outline: none; transition: border-color .2s;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: .93rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color .2s;
     }
     .pwd-input:focus { border-color: var(--pink); background: #fff; }
-    .pwd-error { color: #be123c; font-size: .82rem; font-weight: 500; display: none; }
+    .pwd-error { color: #be123c; font-size: .82rem; font-weight: 700; display: none; }
 
     .btn-logout {
-      width: 100%; padding: 15px;
-      background: #fee2e2; color: #be123c;
-      border: 2px solid #fecaca; border-radius: var(--radius-sm);
-      font-size: .95rem; font-weight: 700; font-family: 'Inter', sans-serif;
-      cursor: pointer; transition: all .15s;
+      width: 100%;
+      padding: 14px;
+      background: #fee2e2;
+      color: #be123c;
+      border: 2px solid #fecaca;
+      border-radius: var(--radius-sm);
+      font-size: .95rem;
+      font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: all .15s;
     }
     .btn-logout:hover { background: #fecaca; }
 
-    .version-tag { text-align: center; font-size: .75rem; color: var(--muted); padding: 8px 0; }
-
-    .other-profile {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 12px; border-radius: var(--radius-sm);
-      background: var(--bg); border: 1.5px solid var(--border);
+    .version-tag {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      padding: 8px 0;
+      font-weight: 600;
     }
-    .other-avatar { font-size: 2rem; }
-    .other-name   { font-size: .93rem; font-weight: 600; color: var(--text); }
-    .other-role   { font-size: .78rem; color: var(--muted); }
   </style>
 </head>
 <body>
   <div class="container">
 
+    <!-- HERO COM FOTO -->
     <div class="profile-hero">
-      <div class="profile-avatar" id="profile-avatar">👤</div>
-      <div class="profile-name"  id="profile-name">…</div>
+      <div class="profile-photo-wrap" id="profile-photo-wrap">
+        <span id="profile-initial">?</span>
+        <img id="profile-photo" src="" alt="" onerror="this.remove()" />
+      </div>
+      <div class="profile-name" id="profile-name">…</div>
       <div class="profile-since">Membro do Nosso Lar ❤️</div>
     </div>
 
@@ -147,10 +270,13 @@
     <div class="profile-section">
       <h2 class="profile-section-title">🏠 Morando junto</h2>
       <div class="other-profile">
-        <span class="other-avatar" id="other-avatar">👤</span>
+        <div class="other-photo-wrap" id="other-photo-wrap">
+          <span id="other-initial">?</span>
+          <img id="other-photo" src="" alt="" onerror="this.remove()" />
+        </div>
         <div>
-          <div class="other-name"  id="other-name">…</div>
-          <div class="other-role">Divide o lar com você</div>
+          <div class="other-name" id="other-name">…</div>
+          <div class="other-role">Divide o lar com você ❤️</div>
         </div>
       </div>
     </div>
@@ -208,7 +334,7 @@
       </div>
     </div>
 
-    <div class="version-tag">Nosso Lar v9 · Feito com ❤️</div>
+    <div class="version-tag">Nosso Lar v10 · Feito com ❤️ por Aline & Isabel</div>
     <div style="height:90px"></div>
   </div>
 
@@ -250,6 +376,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script>
@@ -257,23 +384,48 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const AVATARS    = { Aline: '👩‍🦱', Isabel: '👩‍🦰' };
-    const OTHERS     = { Aline: 'Isabel', Isabel: 'Aline' };
-    // Senhas ficam no sessionStorage (definidas na tela de login)
-    const PWD_KEY    = u => `lar_pwd_${u}`;
+    const OTHERS   = { Aline: 'Isabel', Isabel: 'Aline' };
+    const PWD_KEY  = u => `lar_pwd_${u}`;
     const DEFAULT_PWDS = { Aline: 'aline123', Isabel: 'isabel123' };
-
     function getCurrentPwd(user) {
       return sessionStorage.getItem(PWD_KEY(user)) || DEFAULT_PWDS[user];
+    }
+
+    function loadPhoto(wrapEl, imgEl, initialEl, name) {
+      const src = `fotos/${name.toLowerCase()}.jpg`;
+      initialEl.textContent = name[0] || '?';
+      imgEl.src = src;
+      imgEl.onerror = () => {
+        imgEl.remove();
+      };
+      const testImg = new Image();
+      testImg.onload = () => {
+        wrapEl.style.backgroundImage = `url('${src}')`;
+        initialEl.style.display = 'none';
+      };
+      testImg.src = src;
     }
 
     async function init() {
       const user  = window.CURRENT_USER;
       const other = OTHERS[user];
-      document.getElementById('profile-avatar').textContent = AVATARS[user]  || '👤';
-      document.getElementById('profile-name').textContent   = user;
-      document.getElementById('other-avatar').textContent   = AVATARS[other] || '👤';
-      document.getElementById('other-name').textContent     = other;
+
+      // Fotos
+      loadPhoto(
+        document.getElementById('profile-photo-wrap'),
+        document.getElementById('profile-photo'),
+        document.getElementById('profile-initial'),
+        user
+      );
+      loadPhoto(
+        document.getElementById('other-photo-wrap'),
+        document.getElementById('other-photo'),
+        document.getElementById('other-initial'),
+        other
+      );
+
+      document.getElementById('profile-name').textContent = user;
+      document.getElementById('other-name').textContent   = other;
 
       // Stats de gastos
       const { data: expData } = await db.from('expenses').select('value,person');
@@ -286,7 +438,9 @@
 
       // Stats de tarefas
       const { data: taskData } = await db.from('tasks').select('done,responsible');
-      const myTasks = (taskData || []).filter(t => !t.responsible || t.responsible === user);
+      const myTasks = (taskData || []).filter(t =>
+        t.responsible === user || t.responsible === 'Aline + Isabel'
+      );
       document.getElementById('st-tarefas').textContent    = myTasks.length;
       document.getElementById('st-concluidas').textContent = myTasks.filter(t => t.done).length;
     }
@@ -298,7 +452,6 @@
       }
     }
 
-    // ── ALTERAR SENHA ──
     function openChangePwd() {
       ['pwd-current','pwd-new','pwd-confirm'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('pwd-error').style.display = 'none';
@@ -306,21 +459,28 @@
       document.getElementById('pwd-current').focus();
     }
     function closePwdModal() { document.getElementById('pwd-modal').classList.add('hidden'); }
+
     function saveNewPwd() {
       const user    = window.CURRENT_USER;
       const current = document.getElementById('pwd-current').value;
       const newPwd  = document.getElementById('pwd-new').value;
-      const confirm = document.getElementById('pwd-confirm').value;
+      const conf    = document.getElementById('pwd-confirm').value;
       const errEl   = document.getElementById('pwd-error');
 
       if (current !== getCurrentPwd(user)) {
-        errEl.textContent = '❌ Senha atual incorreta.'; errEl.style.display = 'block'; return;
+        errEl.textContent = '❌ Senha atual incorreta.';
+        errEl.style.display = 'block';
+        return;
       }
       if (newPwd.length < 6) {
-        errEl.textContent = '❌ A nova senha deve ter pelo menos 6 caracteres.'; errEl.style.display = 'block'; return;
+        errEl.textContent = '❌ A nova senha deve ter pelo menos 6 caracteres.';
+        errEl.style.display = 'block';
+        return;
       }
-      if (newPwd !== confirm) {
-        errEl.textContent = '❌ As senhas não coincidem.'; errEl.style.display = 'block'; return;
+      if (newPwd !== conf) {
+        errEl.textContent = '❌ As senhas não coincidem.';
+        errEl.style.display = 'block';
+        return;
       }
       sessionStorage.setItem(PWD_KEY(user), newPwd);
       closePwdModal();
@@ -329,7 +489,8 @@
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
+      t.textContent = msg;
+      t.classList.add('show');
       clearTimeout(t._t);
       t._t = setTimeout(() => t.classList.remove('show'), 2600);
     }

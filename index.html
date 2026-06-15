@@ -6,8 +6,8 @@
   <title>Nosso Lar ❤️ — Tarefas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
   <div class="container">
@@ -16,9 +16,11 @@
       <div class="hero-emoji">🏠</div>
       <h1>Nosso Lar</h1>
       <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
-      <p class="hero-desc">Uma casa organizada, duas pessoas incríveis<br>e uma quantidade questionável de tarefas domésticas.</p>
+      <p class="hero-desc">Uma casa organizada, duas pessoas incríveis<br>e uma quantidade questionável de tarefas.</p>
       <div class="user-badge" onclick="window.location.href='perfil.html'">
-        <span class="user-badge-avatar" id="nav-avatar">👤</span>
+        <div class="user-avatar" id="nav-avatar">
+          <span id="nav-initial"></span>
+        </div>
         <span id="nav-username">…</span>
       </div>
     </header>
@@ -47,13 +49,13 @@
     </div>
 
     <section class="add-task-section">
-      <h2 class="section-title">➕ Adicionar Tarefa</h2>
+      <h2 class="section-title" style="margin-bottom:14px">➕ Adicionar Tarefa</h2>
       <div class="add-task-form">
         <input type="text" id="task-input" class="task-input" placeholder="Nome da tarefa…" maxlength="80" />
         <select id="task-responsible" class="task-select">
           <option value="Aline">Aline</option>
           <option value="Isabel">Isabel</option>
-          <option value="Aline + Isabel">Aline + Isabel</option>
+          <option value="Aline + Isabel">As duas ❤️</option>
         </select>
         <select id="task-category" class="task-select">
           <option value="🧹 Limpeza">🧹 Limpeza</option>
@@ -81,11 +83,11 @@
     </section>
 
     <section class="tasks-section">
-      <h2 class="section-title">📋 Checklist da Casa</h2>
+      <h2 class="section-title" style="margin-bottom:14px">📋 Checklist da Casa</h2>
       <div id="task-list" class="task-list">
         <div class="empty-state" id="empty-state">
           <span>✨</span>
-          <p>Nenhuma tarefa aqui!<br>Adicione a primeira acima.</p>
+          <p>Nenhuma tarefa por aqui!<br>Adicione a primeira acima.</p>
         </div>
       </div>
     </section>
@@ -101,15 +103,23 @@
   </nav>
 
   <div class="toast" id="toast"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script>
-    // badge
-    const AVATARS = { Aline: '👩‍🦱', Isabel: '👩‍🦰' };
-    const u = window.CURRENT_USER;
-    document.getElementById('nav-username').textContent = u;
-    document.getElementById('nav-avatar').textContent   = AVATARS[u] || '👤';
+    (function setupAvatar() {
+      const u = window.CURRENT_USER || '';
+      document.getElementById('nav-username').textContent = u;
+      document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+      const avatarEl = document.getElementById('nav-avatar');
+      const img = new Image();
+      img.onload = () => {
+        avatarEl.style.backgroundImage = `url('${img.src}')`;
+        document.getElementById('nav-initial').style.display = 'none';
+      };
+      img.src = `fotos/${u.toLowerCase()}.jpg`;
+    })();
   </script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

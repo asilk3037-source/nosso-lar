@@ -6,8 +6,8 @@
   <title>Nosso Lar ❤️ — Gastos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
   <div class="container">
@@ -18,7 +18,9 @@
       <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
       <p class="hero-desc">Controle financeiro de cada uma, tudo em um só lugar.</p>
       <div class="user-badge" onclick="window.location.href='perfil.html'">
-        <span class="user-badge-avatar" id="nav-avatar">👤</span>
+        <div class="user-avatar" id="nav-avatar">
+          <span id="nav-initial"></span>
+        </div>
         <span id="nav-username">…</span>
       </div>
     </header>
@@ -34,17 +36,27 @@
       </div>
       <div class="stat-card" style="grid-column: span 2">
         <span class="stat-num" id="total-geral">R$ 0</span>
-        <span class="stat-label">Total Geral</span>
+        <span class="stat-label">Total Geral (incluindo compartilhados)</span>
       </div>
     </div>
 
-    <div class="person-tabs">
-      <button class="person-tab active" onclick="switchPerson('Aline', this)">👩‍🦱 Aline</button>
-      <button class="person-tab" onclick="switchPerson('Isabel', this)">👩‍🦰 Isabel</button>
+    <div class="person-tabs" id="person-tabs">
+      <button class="person-tab active" id="tab-aline" onclick="switchPerson('Aline', this)">
+        <div class="tab-avatar" id="tab-avatar-aline">A
+          <img src="fotos/aline.jpg" alt="Aline" onerror="this.remove()" />
+        </div>
+        Aline
+      </button>
+      <button class="person-tab" id="tab-isabel" onclick="switchPerson('Isabel', this)">
+        <div class="tab-avatar" id="tab-avatar-isabel">I
+          <img src="fotos/isabel.jpg" alt="Isabel" onerror="this.remove()" />
+        </div>
+        Isabel
+      </button>
     </div>
 
     <section class="add-task-section">
-      <h2 class="section-title" id="form-title">➕ Lançar Gasto — Aline</h2>
+      <h2 class="section-title" id="form-title" style="margin-bottom:14px">➕ Lançar Gasto — Aline</h2>
       <div class="add-task-form">
         <input type="text" id="expense-desc" class="task-input" placeholder="Descrição do gasto…" maxlength="80" />
         <select id="expense-cat" class="task-select">
@@ -65,7 +77,7 @@
     </section>
 
     <section class="tasks-section">
-      <h2 class="section-title" id="history-title">📋 Histórico — Aline</h2>
+      <h2 class="section-title" id="history-title" style="margin-bottom:14px">📋 Histórico — Aline</h2>
       <div id="expense-list" class="task-list">
         <div class="empty-state" id="expense-empty">
           <span>💸</span>
@@ -85,14 +97,23 @@
   </nav>
 
   <div class="toast" id="toast"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script>
-    const AVATARS = { Aline: '👩‍🦱', Isabel: '👩‍🦰' };
-    const u = window.CURRENT_USER;
-    document.getElementById('nav-username').textContent = u;
-    document.getElementById('nav-avatar').textContent   = AVATARS[u] || '👤';
+    (function setupAvatar() {
+      const u = window.CURRENT_USER || '';
+      document.getElementById('nav-username').textContent = u;
+      document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+      const avatarEl = document.getElementById('nav-avatar');
+      const img = new Image();
+      img.onload = () => {
+        avatarEl.style.backgroundImage = `url('${img.src}')`;
+        document.getElementById('nav-initial').style.display = 'none';
+      };
+      img.src = `fotos/${u.toLowerCase()}.jpg`;
+    })();
   </script>
-  <script src="gastos.js?v=9"></script>
+  <script src="gastos.js?v=10"></script>
 </body>
 </html>
