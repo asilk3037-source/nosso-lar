@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Nosso Lar ❤️ — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=9" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .login-wrap {
+      width: 100%; max-width: 420px;
+      display: flex; flex-direction: column; gap: 28px;
+    }
+    .login-hero {
+      background: linear-gradient(135deg, #c084fc 0%, #e879a8 50%, #fb7185 100%);
+      border-radius: 28px; padding: 52px 32px 44px;
+      text-align: center; color: white;
+      box-shadow: 0 10px 40px rgba(192,132,252,.35);
+    }
+    .login-hero-emoji { font-size: 3.8rem; margin-bottom: 14px; line-height: 1; }
+    .login-hero h1 {
+      font-family: 'Playfair Display', serif; font-size: 2.4rem;
+      font-weight: 700; letter-spacing: -.5px; margin-bottom: 6px;
+    }
+    .login-hero p { font-size: 1rem; opacity: .88; }
+    .login-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 32px 28px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .login-title {
+      font-family: 'Playfair Display', serif; font-size: 1.3rem;
+      color: var(--text); text-align: center; margin-bottom: -4px;
+    }
+    .login-subtitle { font-size: .85rem; color: var(--muted); text-align: center; margin-top: -12px; }
+    .login-field { display: flex; flex-direction: column; gap: 7px; }
+    .login-label { font-size: .8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .login-input {
+      padding: 13px 16px;
+      border: 2px solid var(--border); border-radius: 12px;
+      font-size: .95rem; font-family: 'Inter', sans-serif;
+      color: var(--text); background: var(--bg);
+      outline: none; transition: border-color .2s;
+    }
+    .login-input:focus { border-color: var(--pink); background: #fff; }
+    .btn-login {
+      padding: 15px;
+      background: linear-gradient(135deg, #c084fc, #e879a8);
+      color: white; border: none; border-radius: 14px;
+      font-size: 1rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: opacity .2s, transform .1s;
+      box-shadow: 0 4px 16px rgba(192,132,252,.4);
+    }
+    .btn-login:hover { opacity: .92; }
+    .btn-login:active { transform: scale(.98); }
+    .login-error {
+      background: #fde8ec; border: 1.5px solid #fbb6c8;
+      color: #be123c; border-radius: 10px;
+      padding: 11px 14px; font-size: .88rem; font-weight: 500;
+      display: none;
+    }
+    .login-divider { text-align: center; font-size: .8rem; color: var(--muted); }
+    .login-profile-row { display: flex; gap: 12px; }
+    .btn-profile-pick {
+      flex: 1; padding: 16px 8px;
+      border: 2.5px solid var(--border); border-radius: 14px;
+      background: var(--bg); cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      transition: all .15s; font-family: 'Inter', sans-serif;
+    }
+    .btn-profile-pick:hover { border-color: var(--pink); background: #fdf4f8; }
+    .btn-profile-pick.selected { border-color: var(--pink); background: var(--pink-light); }
+    .btn-profile-pick .pick-avatar { font-size: 2rem; }
+    .btn-profile-pick .pick-name { font-size: .82rem; font-weight: 600; color: var(--text); }
+    .loading-spinner {
+      display: none; width: 20px; height: 20px;
+      border: 2.5px solid rgba(255,255,255,.4);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .7s linear infinite; margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-hero">
+      <div class="login-hero-emoji">🏠</div>
+      <h1>Nosso Lar</h1>
+      <p>Aline ❤️ Isabel</p>
+    </div>
+
+    <div class="login-card">
+      <h2 class="login-title">Bem-vinda de volta!</h2>
+      <p class="login-subtitle">Escolha quem é você e entre com sua senha</p>
+
+      <div>
+        <div class="login-label" style="margin-bottom:10px">Quem está entrando?</div>
+        <div class="login-profile-row">
+          <button class="btn-profile-pick selected" id="pick-aline" onclick="selectProfile('Aline')">
+            <span class="pick-avatar">👩‍🦱</span>
+            <span class="pick-name">Aline</span>
+          </button>
+          <button class="btn-profile-pick" id="pick-isabel" onclick="selectProfile('Isabel')">
+            <span class="pick-avatar">👩‍🦰</span>
+            <span class="pick-name">Isabel</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="login-field">
+        <label class="login-label" for="login-password">Senha</label>
+        <input type="password" id="login-password" class="login-input"
+          placeholder="Digite sua senha…"
+          onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+
+      <div class="login-error" id="login-error">❌ Senha incorreta. Tente novamente.</div>
+
+      <button class="btn-login" onclick="doLogin()">
+        <span id="btn-login-text">Entrar ✨</span>
+        <div class="loading-spinner" id="login-spinner"></div>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Senhas simples — mude aqui
+    const PASSWORDS = { Aline: 'aline123', Isabel: 'isabel123' };
+    let selectedProfile = 'Aline';
+
+    function selectProfile(name) {
+      selectedProfile = name;
+      document.getElementById('pick-aline').classList.toggle('selected', name === 'Aline');
+      document.getElementById('pick-isabel').classList.toggle('selected', name === 'Isabel');
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').focus();
+      document.getElementById('login-error').style.display = 'none';
+    }
+
+    function doLogin() {
+      const pwd = document.getElementById('login-password').value;
+      const err = document.getElementById('login-error');
+      const txt = document.getElementById('btn-login-text');
+      const spn = document.getElementById('login-spinner');
+
+      if (pwd !== PASSWORDS[selectedProfile]) {
+        err.style.display = 'block';
+        document.getElementById('login-password').focus();
+        return;
+      }
+      err.style.display = 'none';
+      txt.style.display = 'none';
+      spn.style.display = 'block';
+
+      // salva sessão
+      sessionStorage.setItem('lar_user', selectedProfile);
+      setTimeout(() => { window.location.href = 'index.html'; }, 600);
+    }
+
+    // se já logou, redireciona
+    if (sessionStorage.getItem('lar_user')) window.location.href = 'index.html';
+  </script>
+</body>
+</html>

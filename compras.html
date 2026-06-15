@@ -7,33 +7,29 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=7" />
-  <link rel="stylesheet" href="compras.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="compras.css?v=9" />
 </head>
 <body class="compras-page">
 
-  <!-- ══════════════════════════════════════
+  <!-- ═══════════════════════════════════
        CATÁLOGO — Bottom Sheet
-  ══════════════════════════════════════ -->
+  ═══════════════════════════════════ -->
   <div id="catalog-overlay" class="cat-overlay hidden" onclick="closeCatalog(event)">
     <div class="cat-sheet" id="cat-sheet">
       <div class="cat-handle"></div>
 
-      <!-- BUSCA -->
       <div class="cat-search-wrap">
         <span class="cat-search-icon">🔍</span>
         <input id="cat-search" class="cat-search" type="text"
-          placeholder="Buscar produto…"
-          oninput="onSearch(this.value)" />
+          placeholder="Buscar produto…" oninput="onSearch(this.value)" />
         <button class="cat-search-clear hidden" id="clear-search" onclick="clearSearch()">✕</button>
       </div>
 
-      <!-- TELA HOME: grade de categorias -->
       <div id="cat-home" class="cat-screen">
         <div class="cat-grid" id="cat-grid"></div>
       </div>
 
-      <!-- TELA DE ITENS da categoria -->
       <div id="cat-items-screen" class="cat-screen hidden">
         <button class="cat-back" onclick="showCatHome()">‹ voltar</button>
         <h2 class="cat-subtitle" id="cat-items-title"></h2>
@@ -41,7 +37,6 @@
         <div class="cat-items-list" id="cat-items-list"></div>
       </div>
 
-      <!-- TELA DE BUSCA -->
       <div id="cat-search-screen" class="cat-screen hidden">
         <p class="cat-hint">Toque para adicionar à lista</p>
         <div class="cat-items-list" id="cat-search-results"></div>
@@ -49,9 +44,9 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
+  <!-- ═══════════════════════════════════
        CONTEÚDO PRINCIPAL
-  ══════════════════════════════════════ -->
+  ═══════════════════════════════════ -->
   <div class="container">
 
     <header class="hero hero-orange">
@@ -59,6 +54,10 @@
       <h1>Lista de Compras</h1>
       <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
       <p class="hero-desc">Monte a lista antes de sair e dê check no mercado!</p>
+      <div class="user-badge" onclick="goProfile()">
+        <span class="user-badge-avatar" id="nav-avatar">👤</span>
+        <span id="nav-username">…</span>
+      </div>
     </header>
 
     <!-- STATS -->
@@ -86,8 +85,22 @@
     <!-- FORM MANUAL -->
     <div id="manual-form" class="manual-form hidden">
       <div class="add-task-form">
-        <input type="text" id="item-input" class="task-input" placeholder="Nome do produto…" maxlength="60" />
-        <input type="text" id="item-qty" class="task-input task-input-qty" placeholder="Quantidade (ex: 2 kg, 1 pct)…" maxlength="20" />
+        <input type="text" id="item-input" class="task-input"
+          placeholder="Nome do produto…" maxlength="60" />
+        <input type="number" id="item-qty-num" class="task-input task-input-qty"
+          placeholder="Qtd" min="0.5" step="0.5" style="flex:0 1 80px;max-width:80px" />
+        <select id="item-qty-unit" class="task-select" style="flex:0 1 100px">
+          <option value="unid">unid</option>
+          <option value="pct">pct</option>
+          <option value="cx">cx</option>
+          <option value="lata">lata</option>
+          <option value="kg">kg</option>
+          <option value="g">g</option>
+          <option value="L">L</option>
+          <option value="ml">ml</option>
+          <option value="fardo">fardo</option>
+          <option value="sac">sac</option>
+        </select>
         <select id="item-cat" class="task-select">
           <option value="🥩 Carnes">🥩 Carnes</option>
           <option value="🥛 Laticínios">🥛 Laticínios</option>
@@ -106,6 +119,15 @@
         </select>
         <button class="btn-add" onclick="addItem()">Adicionar</button>
       </div>
+    </div>
+
+    <!-- BUSCA NA LISTA -->
+    <div class="list-search-wrap">
+      <span class="list-search-icon">🔍</span>
+      <input type="text" id="list-search" class="list-search-input"
+        placeholder="Buscar na lista…" oninput="filterList(this.value)" />
+      <button class="list-search-clear hidden" id="list-search-clear"
+        onclick="clearListSearch()">✕</button>
     </div>
 
     <!-- LISTA -->
@@ -130,10 +152,12 @@
     <a href="index.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
     <a href="gastos.html" class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
     <a href="compras.html" class="nav-item active"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+    <a href="perfil.html" class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
   </nav>
 
   <div class="toast" id="toast"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="compras.js?v=7"></script>
+  <script src="auth.js"></script>
+  <script src="compras.js?v=9"></script>
 </body>
 </html>

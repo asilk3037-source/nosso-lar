@@ -1,10 +1,15 @@
+// compras.js v9
 const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let items = [];
+let listFilter = '';
 
-// ── CATÁLOGO COMPLETO ─────────────────────────────────
+// Unidades que multiplicam (contáveis)
+const MULTIPLY_UNITS = new Set(['unid', 'pct', 'cx', 'lata', 'sac', 'fardo']);
+
+// ── CATÁLOGO ──────────────────────────────────────────
 const CATALOG = [
   { cat: '🥩 Carnes', emoji: '🥩', items: [
     'Carne moída','Patinho','Acém','Alcatra','Contrafilé','Costela',
@@ -71,12 +76,22 @@ const CATALOG = [
     'Papel alumínio','Filme plástico','Sacos zip','Gelo','Carvão',
   ]},
 ];
-
-// lista flat para busca
 const ALL_ITEMS = CATALOG.flatMap(c => c.items.map(name => ({ name, cat: c.cat })));
+
+// ── AUTH BADGE ─────────────────────────────────────────
+function setupUserBadge() {
+  const avatars = { Aline: '👩‍🦱', Isabel: '👩‍🦰' };
+  const user = window.CURRENT_USER;
+  const el = document.getElementById('nav-username');
+  const av = document.getElementById('nav-avatar');
+  if (el) el.textContent = user;
+  if (av) av.textContent = avatars[user] || '👤';
+}
+function goProfile() { window.location.href = 'perfil.html'; }
 
 // ── INIT ──────────────────────────────────────────────
 async function init() {
+  setupUserBadge();
   buildCatGrid();
   await load();
   db.channel('shopping-rt')
@@ -115,31 +130,25 @@ function openCatalog() {
   showCatHome();
   clearSearch();
 }
-
 function closeCatalog(e) {
   if (e && e.target !== document.getElementById('catalog-overlay')) return;
   document.getElementById('catalog-overlay').classList.add('hidden');
   document.body.style.overflow = '';
 }
-
 function showCatHome() {
   document.getElementById('cat-home').classList.remove('hidden');
   document.getElementById('cat-items-screen').classList.add('hidden');
   document.getElementById('cat-search-screen').classList.add('hidden');
 }
-
 function openCategory(idx) {
   const cat = CATALOG[idx];
   document.getElementById('cat-items-title').textContent = cat.cat;
   const list = document.getElementById('cat-items-list');
   list.innerHTML = '';
-  cat.items.forEach(name => {
-    list.appendChild(makeCatItemBtn(name, cat.cat));
-  });
+  cat.items.forEach(name => list.appendChild(makeCatItemBtn(name, cat.cat)));
   document.getElementById('cat-home').classList.add('hidden');
   document.getElementById('cat-items-screen').classList.remove('hidden');
 }
-
 function makeCatItemBtn(name, cat) {
   const inList = items.some(i => i.name.toLowerCase() === name.toLowerCase());
   const btn = document.createElement('button');
@@ -153,23 +162,19 @@ function makeCatItemBtn(name, cat) {
   btn.onclick = () => toggleCatalogItem(btn, name, cat);
   return btn;
 }
-
 async function toggleCatalogItem(btn, name, cat) {
   const existing = items.find(i => i.name.toLowerCase() === name.toLowerCase());
   if (existing) {
-    // já está na lista → remove
     await db.from('shopping_items').delete().eq('id', existing.id);
     showToast(`🗑️ "${name}" removido`);
   } else {
-    // adiciona
-    const { error } = await db.from('shopping_items').insert([{ name, category: cat, checked: false, value: null, quantity: null }]);
+    const { error } = await db.from('shopping_items')
+      .insert([{ name, category: cat, checked: false, value: null, qty_num: null, qty_unit: 'unid' }]);
     if (error) { showToast('❌ ' + error.message); return; }
     showToast(`✅ "${name}" adicionado!`);
   }
 }
-
 function refreshCatalogState() {
-  // atualiza botões visíveis no catálogo sem fechar o sheet
   document.querySelectorAll('.cat-item-btn').forEach(btn => {
     const name = btn.dataset.name;
     const inList = items.some(i => i.name.toLowerCase() === name.toLowerCase());
@@ -178,13 +183,12 @@ function refreshCatalogState() {
   });
 }
 
-// ── BUSCA ─────────────────────────────────────────────
+// ── BUSCA NO CATÁLOGO ─────────────────────────────────
 function onSearch(q) {
   const clear = document.getElementById('clear-search');
   const home  = document.getElementById('cat-home');
   const catIt = document.getElementById('cat-items-screen');
   const srch  = document.getElementById('cat-search-screen');
-
   if (!q.trim()) {
     clear.classList.add('hidden');
     srch.classList.add('hidden');
@@ -196,25 +200,28 @@ function onSearch(q) {
   home.classList.add('hidden');
   catIt.classList.add('hidden');
   srch.classList.remove('hidden');
-
-  const results = ALL_ITEMS.filter(i =>
-    i.name.toLowerCase().includes(q.toLowerCase())
-  );
+  const results = ALL_ITEMS.filter(i => i.name.toLowerCase().includes(q.toLowerCase()));
   const res = document.getElementById('cat-search-results');
   res.innerHTML = '';
-  if (results.length === 0) {
-    res.innerHTML = '<div class="cat-empty">Nenhum produto encontrado 😕</div>';
-    return;
-  }
-  results.forEach(({ name, cat }) => {
-    res.appendChild(makeCatItemBtn(name, cat));
-  });
+  if (!results.length) { res.innerHTML = '<div class="cat-empty">Nenhum produto encontrado 😕</div>'; return; }
+  results.forEach(({ name, cat }) => res.appendChild(makeCatItemBtn(name, cat)));
 }
-
 function clearSearch() {
   const input = document.getElementById('cat-search');
   input.value = '';
   onSearch('');
+}
+
+// ── BUSCA NA LISTA ─────────────────────────────────────
+function filterList(q) {
+  listFilter = q.trim().toLowerCase();
+  const clearBtn = document.getElementById('list-search-clear');
+  clearBtn.classList.toggle('hidden', !listFilter);
+  render();
+}
+function clearListSearch() {
+  document.getElementById('list-search').value = '';
+  filterList('');
 }
 
 // ── FORM MANUAL ───────────────────────────────────────
@@ -227,16 +234,19 @@ function toggleManual() {
 }
 
 async function addItem() {
-  const input    = document.getElementById('item-input');
-  const name     = input.value.trim();
+  const input   = document.getElementById('item-input');
+  const name    = input.value.trim();
   if (!name) { input.focus(); showToast('✏️ Escreve o nome do produto!'); return; }
-  const cat      = document.getElementById('item-cat').value;
-  const qtyInput = document.getElementById('item-qty');
-  const quantity = qtyInput ? qtyInput.value.trim() || null : null;
-  const { error } = await db.from('shopping_items').insert([{ name, category: cat, checked: false, value: null, quantity }]);
+  const cat     = document.getElementById('item-cat').value;
+  const qtyNum  = parseFloat(document.getElementById('item-qty-num').value) || null;
+  const qtyUnit = document.getElementById('item-qty-unit').value;
+  const { error } = await db.from('shopping_items').insert([{
+    name, category: cat, checked: false, value: null,
+    qty_num: qtyNum, qty_unit: qtyUnit,
+  }]);
   if (error) { showToast('❌ ' + error.message); return; }
   input.value = '';
-  if (qtyInput) qtyInput.value = '';
+  document.getElementById('item-qty-num').value = '';
   input.focus();
   showToast('✅ Adicionado!');
 }
@@ -248,17 +258,20 @@ async function toggleItem(id) {
   await db.from('shopping_items').update({ checked: !item.checked }).eq('id', id);
 }
 
-// ── ATUALIZAR VALOR ───────────────────────────────────
+// ── ATUALIZAR VALOR unit ──────────────────────────────
 async function updateValue(id, val) {
-  const value = parseFloat(val);
+  const value = parseFloat(val.replace(',', '.'));
   if (isNaN(value) || value < 0) return;
   await db.from('shopping_items').update({ value }).eq('id', id);
 }
 
-// ── ATUALIZAR QUANTIDADE ──────────────────────────────
-async function updateQuantity(id, val) {
-  const quantity = val.trim() || null;
-  await db.from('shopping_items').update({ quantity }).eq('id', id);
+// ── ATUALIZAR QTY inline ──────────────────────────────
+async function updateQtyNum(id, val) {
+  const qty_num = parseFloat(val) || null;
+  await db.from('shopping_items').update({ qty_num }).eq('id', id);
+}
+async function updateQtyUnit(id, val) {
+  await db.from('shopping_items').update({ qty_unit: val }).eq('id', id);
 }
 
 // ── EXCLUIR ───────────────────────────────────────────
@@ -267,11 +280,23 @@ async function deleteItem(id) {
   showToast('🗑️ Removido.');
 }
 
+// ── CALCULAR TOTAL DE UM ITEM ─────────────────────────
+// Multiplica apenas se unidade for contável (unid, pct, cx, lata, sac, fardo)
+function calcItemTotal(item) {
+  if (!item.value) return 0;
+  const v = Number(item.value);
+  const n = item.qty_num ? Number(item.qty_num) : null;
+  const u = item.qty_unit || 'unid';
+  if (n && MULTIPLY_UNITS.has(u)) return v * n;
+  return v;
+}
+
 // ── FINALIZAR COMPRA ──────────────────────────────────
 async function finishShopping() {
-  const total = items.reduce((s, i) => s + (i.checked && i.value ? Number(i.value) : 0), 0);
+  const checkedItems = items.filter(i => i.checked);
+  const total = checkedItems.reduce((s, i) => s + calcItemTotal(i), 0);
   if (total === 0) { showToast('⚠️ Informe o valor dos itens antes de finalizar!'); return; }
-  if (!confirm(`Finalizar compra?\n\nTotal: R$ ${fmt(total)}\n\nIsso vai salvar nos gastos de Aline + Isabel e limpar a lista.`)) return;
+  if (!confirm(`Finalizar compra?\n\nTotal: R$ ${fmt(total)}\n\nIsso vai salvar nos gastos e limpar a lista.`)) return;
 
   const { error } = await db.from('expenses').insert([{
     description: '🛒 Compras do mercado',
@@ -280,15 +305,20 @@ async function finishShopping() {
     person:      'Aline + Isabel',
   }]);
   if (error) { showToast('❌ Erro ao salvar gasto.'); return; }
-
   const ids = items.map(i => i.id);
   await db.from('shopping_items').delete().in('id', ids);
-  showToast(`🎉 Compra de R$ ${fmt(total)} salva nos gastos!`);
+  showToast(`🎉 Compra de R$ ${fmt(total)} salva!`);
 }
 
 // ── RENDER ────────────────────────────────────────────
+const UNIT_OPTIONS = ['unid','pct','cx','lata','kg','g','L','ml','fardo','sac'];
+
 function render() {
-  const total   = items.reduce((s, i) => s + (i.checked && i.value ? Number(i.value) : 0), 0);
+  const visibleItems = listFilter
+    ? items.filter(i => i.name.toLowerCase().includes(listFilter))
+    : items;
+
+  const total   = items.reduce((s, i) => s + (i.checked ? calcItemTotal(i) : 0), 0);
   const checked = items.filter(i => i.checked).length;
 
   document.getElementById('stat-itens').textContent        = items.length;
@@ -300,13 +330,30 @@ function render() {
   const empty = document.getElementById('shopping-empty');
   list.querySelectorAll('.task-item').forEach(el => el.remove());
 
-  if (items.length === 0) { empty.classList.remove('hidden'); return; }
+  if (visibleItems.length === 0) {
+    empty.classList.remove('hidden');
+    empty.querySelector('p').innerHTML = listFilter
+      ? `Nenhum item com "<strong>${escapeHtml(listFilter)}</strong>" na lista.`
+      : 'Lista vazia!<br>Use o catálogo ou clique em Digitar.';
+    return;
+  }
   empty.classList.add('hidden');
 
   // pendentes primeiro
-  const sorted = [...items].sort((a, b) => a.checked - b.checked);
+  const sorted = [...visibleItems].sort((a, b) => a.checked - b.checked);
+  const unitOpts = UNIT_OPTIONS.map(u => `<option value="${u}">${u}</option>`).join('');
 
   sorted.forEach(item => {
+    const qtyNum  = item.qty_num  ?? '';
+    const qtyUnit = item.qty_unit || 'unid';
+    const unitOpsSelected = UNIT_OPTIONS
+      .map(u => `<option value="${u}"${u===qtyUnit?' selected':''}>${u}</option>`).join('');
+
+    // total calculado para exibir quando marcado
+    const itemTotal = item.checked ? calcItemTotal(item) : 0;
+    const showTotal = item.checked && item.value && item.qty_num
+      && MULTIPLY_UNITS.has(qtyUnit) && Number(item.qty_num) > 1;
+
     const el = document.createElement('div');
     el.className = `task-item ${item.checked ? 'done' : ''}`;
     el.innerHTML = `
@@ -316,24 +363,34 @@ function render() {
         <span class="task-name ${item.checked ? 'striked' : ''}">${escapeHtml(item.name)}</span>
         <div class="task-meta">
           <span class="tag tag-category">${escapeHtml(item.category)}</span>
-          <div class="qty-input-wrap">
-            <span class="qty-prefix">📦</span>
-            <input type="text" class="qty-input" placeholder="qtd…"
-              maxlength="20"
-              value="${(item.quantity !== null && item.quantity !== undefined) ? escapeHtml(String(item.quantity)) : ''}"
-              onblur="updateQuantity('${item.id}', this.value)"
-              onclick="event.stopPropagation()"
-              onkeydown="if(event.key==='Enter'){this.blur();}" />
+
+          <!-- QUANTIDADE -->
+          <div class="qty-wrap">
+            <input type="number" class="qty-num-input" placeholder="qtd"
+              min="0.5" step="0.5" value="${qtyNum}"
+              onblur="updateQtyNum('${item.id}', this.value)"
+              onkeydown="if(event.key==='Enter')this.blur()"
+              onclick="event.stopPropagation()" />
+            <select class="qty-unit-select"
+              onchange="updateQtyUnit('${item.id}', this.value)"
+              onclick="event.stopPropagation()">
+              ${unitOpsSelected}
+            </select>
           </div>
+
+          <!-- VALOR (só quando marcado) -->
           ${item.checked ? `
             <div class="value-input-wrap">
               <span class="value-prefix">R$</span>
-              <input type="number" class="value-input" placeholder="0,00"
-                min="0" step="0.01"
-                value="${item.value !== null ? item.value : ''}"
-                onchange="updateValue('${item.id}', this.value)"
+              <input type="text" inputmode="decimal" class="value-input"
+                placeholder="0,00"
+                value="${item.value !== null ? String(item.value).replace('.',',') : ''}"
+                onblur="updateValue('${item.id}', this.value)"
+                onkeydown="if(event.key==='Enter')this.blur()"
                 onclick="event.stopPropagation()" />
-            </div>` : ''}
+            </div>
+            ${showTotal ? `<span class="tag-total">= R$ ${fmt(itemTotal)}</span>` : ''}
+          ` : ''}
         </div>
       </div>
       <button class="btn-delete" onclick="deleteItem('${item.id}')">🗑️</button>
@@ -343,7 +400,7 @@ function render() {
 }
 
 // ── HELPERS ───────────────────────────────────────────
-const fmt        = v  => Number(v).toFixed(2).replace('.',',');
+const fmt        = v  => Number(v).toFixed(2).replace('.', ',');
 const escapeHtml = s  => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 function showToast(msg) {
@@ -354,7 +411,7 @@ function showToast(msg) {
   t._timeout = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ── EXPÕE FUNÇÕES ─────────────────────────────────────
+// ── GLOBALS ───────────────────────────────────────────
 window.openCatalog      = openCatalog;
 window.closeCatalog     = closeCatalog;
 window.showCatHome      = showCatHome;
@@ -364,16 +421,18 @@ window.toggleManual     = toggleManual;
 window.addItem          = addItem;
 window.toggleItem       = toggleItem;
 window.updateValue      = updateValue;
-window.updateQuantity   = updateQuantity;
+window.updateQtyNum     = updateQtyNum;
+window.updateQtyUnit    = updateQtyUnit;
 window.deleteItem       = deleteItem;
 window.finishShopping   = finishShopping;
+window.filterList       = filterList;
+window.clearListSearch  = clearListSearch;
+window.goProfile        = goProfile;
 
-// ── ENTER ─────────────────────────────────────────────
+// ── ENTER no input ────────────────────────────────────
 document.getElementById('item-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') addItem();
 });
-
-// Fechar com ESC
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.getElementById('catalog-overlay').classList.add('hidden');
