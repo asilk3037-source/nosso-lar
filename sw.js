@@ -1,12 +1,11 @@
 const CACHE = 'nosso-lar-v11';
 const ASSETS = [
-  '/', '/index.html', '/tarefas.html', '/compras.html', '/gastos.html',
-  '/perfil.html', '/recados.html', '/graficos.html', '/rachador.html',
-  '/datas.html', '/estoque.html', '/cardapio.html', '/login.html',
-  '/style.css', '/compras.css', '/app.js', '/gastos.js', '/compras.js',
-  '/recados.js', '/graficos.js', '/rachador.js', '/datas.js', '/estoque.js',
-  '/cardapio.js', '/auth.js', '/dialog.js',
-  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap',
+  './index.html', './tarefas.html', './compras.html', './gastos.html',
+  './perfil.html', './recados.html', './graficos.html', './rachador.html',
+  './datas.html', './estoque.html', './cardapio.html', './login.html',
+  './style.css', './compras.css', './app.js', './gastos.js', './compras.js',
+  './recados.js', './graficos.js', './rachador.js', './datas.js', './estoque.js',
+  './cardapio.js', './auth.js', './dialog.js',
 ];
 
 self.addEventListener('install', e => {
