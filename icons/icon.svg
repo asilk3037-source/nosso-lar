@@ -1,11 +1,106 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="#c084fc"/>
-      <stop offset="55%"  stop-color="#e879a8"/>
-      <stop offset="100%" stop-color="#fb7185"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#a855f7"/>
     </linearGradient>
+    <linearGradient id="roofG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fda4cf"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+    <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef5e7"/>
+      <stop offset="100%" stop-color="#fde8c8"/>
+    </linearGradient>
+    <linearGradient id="winG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef9c3"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="120" fill="url(#g)"/>
-  <text x="256" y="330" text-anchor="middle" font-size="280" font-family="sans-serif">🏠</text>
+
+  <!-- Fundo -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+
+  <!-- Grama / chão -->
+  <ellipse cx="256" cy="386" rx="148" ry="18" fill="#6db86b"/>
+
+  <!-- Arbusto esquerdo -->
+  <circle cx="148" cy="368" r="30" fill="#5aad58"/>
+  <circle cx="168" cy="376" r="22" fill="#6dc96b"/>
+  <circle cx="136" cy="374" r="18" fill="#6dc96b"/>
+
+  <!-- Arbusto direito -->
+  <circle cx="364" cy="368" r="30" fill="#5aad58"/>
+  <circle cx="344" cy="376" r="22" fill="#6dc96b"/>
+  <circle cx="376" cy="374" r="18" fill="#6dc96b"/>
+
+  <!-- Sombra da casa no chão -->
+  <ellipse cx="258" cy="386" rx="118" ry="10" fill="rgba(0,0,0,0.10)" filter="url(#soft)"/>
+
+  <!-- Paredes (sombra) -->
+  <rect x="152" y="236" width="214" height="150" rx="12" fill="rgba(0,0,0,0.08)"/>
+  <!-- Paredes -->
+  <rect x="148" y="230" width="216" height="152" rx="12" fill="url(#wallG)"/>
+
+  <!-- Chaminé (atrás do telhado) -->
+  <rect x="312" y="148" width="32" height="86" rx="7" fill="#fba4c7"/>
+  <rect x="305" y="140" width="46" height="16" rx="6" fill="#fda4cf"/>
+
+  <!-- Telhado (puff com stroke arredondado) -->
+  <path d="M256 92 L128 240 L384 240 Z"
+    stroke="#fda4cf" stroke-width="22" stroke-linejoin="round"
+    fill="url(#roofG)" paint-order="stroke fill"/>
+  <!-- Linha sombra embaixo telhado -->
+  <path d="M128 240 L384 240" stroke="rgba(0,0,0,0.07)" stroke-width="8" fill="none"/>
+
+  <!-- Porta (arco roxo) -->
+  <path d="M224 382 L224 306 A32 32 0 0 1 288 306 L288 382 Z"
+    fill="#a78bfa"/>
+  <!-- Porta reflexo -->
+  <path d="M228 382 L228 308 A28 14 0 0 1 248 300 L248 382 Z"
+    fill="rgba(255,255,255,0.13)"/>
+  <!-- Maçaneta -->
+  <circle cx="280" cy="346" r="5.5" fill="#c4b5fd"/>
+
+  <!-- Janela (amarela com brilho) -->
+  <rect x="296" y="260" width="64" height="60" rx="10" fill="url(#winG)"/>
+  <rect x="298" y="262" width="60" height="56" rx="8" fill="rgba(255,255,200,0.45)"/>
+  <line x1="328" y1="261" x2="328" y2="319" stroke="#fbbf24" stroke-width="2.5"/>
+  <line x1="296" y1="290" x2="360" y2="290" stroke="#fbbf24" stroke-width="2.5"/>
+  <!-- Brilho janela -->
+  <rect x="300" y="264" width="24" height="22" rx="4" fill="rgba(255,255,255,0.35)"/>
+
+  <!-- Coração pequeno (chaminé) -->
+  <path d="M336 128 C324 119,313 110,313 102 C313 95,319 90,326 90 C330 90,334 93,336 97 C338 93,342 90,346 90 C353 90,359 95,359 102 C359 110,348 119,336 128 Z"
+    fill="#f472b6"/>
+
+  <!-- Coração grande direita -->
+  <path d="M390 358 C362 340,340 318,340 300 C340 287,349 279,360 279 C368 279,379 285,390 298 C401 285,412 279,420 279 C431 279,440 287,440 300 C440 318,418 340,390 358 Z"
+    fill="#f472b6"/>
+
+  <!-- Faísca grande esquerda -->
+  <path d="M108 148 L112 136 L116 148 L128 152 L116 156 L112 168 L108 156 L96 152 Z" fill="white"/>
+  <!-- Ponto brilho -->
+  <circle cx="88" cy="182" r="5" fill="rgba(255,255,255,0.75)"/>
+  <!-- Faísca direita -->
+  <path d="M396 126 L399 117 L402 126 L411 129 L402 132 L399 141 L396 132 L387 129 Z" fill="white"/>
+
+  <!-- Texto Nosso Lar -->
+  <text x="256" y="442"
+    text-anchor="middle"
+    font-family="Georgia, 'Palatino Linotype', serif"
+    font-size="60" font-weight="700"
+    fill="white"
+    style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.18))">Nosso Lar</text>
+
+  <!-- Texto Aline ❤ Isabel -->
+  <text x="256" y="479"
+    text-anchor="middle"
+    font-family="Georgia, sans-serif"
+    font-size="27" font-weight="400"
+    fill="rgba(255,255,255,0.92)"
+    letter-spacing="1">Aline &#x2665; Isabel</text>
 </svg>
