@@ -1,4 +1,4 @@
-const CACHE = 'nosso-lar-v11';
+const CACHE = 'nosso-lar-v12';
 const ASSETS = [
   './index.html', './tarefas.html', './compras.html', './gastos.html',
   './perfil.html', './recados.html', './graficos.html', './rachador.html',
