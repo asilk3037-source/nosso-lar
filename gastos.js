@@ -91,7 +91,9 @@ function exportCSV() {
   const a    = document.createElement('a');
   a.href     = url;
   a.download = `gastos-${currentPerson.toLowerCase()}-${new Date().toISOString().slice(0,7)}.csv`;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('⬇️ CSV exportado!');
 }
