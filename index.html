@@ -57,6 +57,18 @@
     </div>
   </div>
 
+  <!-- INSTALAR APP -->
+  <div id="install-banner" style="display:none" class="card" style="text-align:center">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="font-size:2rem">📲</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:800;color:var(--text);font-size:.95rem">Instalar no celular</div>
+        <div style="font-size:.82rem;color:var(--muted);font-weight:600">Acesse como app, sem abrir o navegador!</div>
+      </div>
+      <button class="btn-add" id="btn-install-pwa" onclick="installPWA()">📲 Instalar</button>
+    </div>
+  </div>
+
   <!-- APPS GRID -->
   <div class="card">
     <h2 class="section-title" style="margin-bottom:16px">✨ Funcionalidades</h2>
@@ -130,7 +142,30 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
 <script src="dialog.js"></script>
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ── BOTÃO DE INSTALAÇÃO PWA ──────────────────────
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+  document.getElementById('install-banner').style.display = '';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+  _installPrompt = null;
+  showToast('✅ App instalado com sucesso!');
+});
+async function installPWA() {
+  if (!_installPrompt) return;
+  _installPrompt.prompt();
+  const { outcome } = await _installPrompt.userChoice;
+  _installPrompt = null;
+  if (outcome === 'accepted') {
+    document.getElementById('install-banner').style.display = 'none';
+  }
+}
+window.installPWA = installPWA;</script>
 <script>
 const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
