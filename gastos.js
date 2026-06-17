@@ -70,7 +70,7 @@ async function togglePaid(id, current) {
   else showToast(!current ? '✅ Marcado como pago!' : '🔄 Marcado como pendente!');
 }
 
-function exportCSV() {
+async function exportCSV() {
   const rows = [['Descrição','Categoria','Valor','Pessoa','Vencimento','Pago','Recorrente','Data']];
   const toExport = expenses.filter(e => e.person === currentPerson || e.person === 'Aline + Isabel');
   toExport.forEach(e => {
@@ -85,12 +85,38 @@ function exportCSV() {
       new Date(e.created_at).toLocaleDateString('pt-BR'),
     ]);
   });
-  const csv  = rows.map(r => r.join(';')).join('\n');
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
+  const csv      = rows.map(r => r.join(';')).join('\n');
+  const filename = `gastos-${currentPerson.toLowerCase()}-${new Date().toISOString().slice(0,7)}.csv`;
+  const blob     = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+
+  // iOS Safari ignora o atributo `download` em blob: URLs, então usamos o Web Share
+  // Sheet (que tem opção "Salvar em Arquivos") como caminho principal nesse navegador.
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  if (isIOS && navigator.canShare) {
+    const file = new File([blob], filename, { type: 'text/csv' });
+    if (navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: filename });
+        showToast('⬇️ CSV exportado!');
+      } catch (err) {
+        if (err.name !== 'AbortError') showToast('❌ Não foi possível exportar.');
+      }
+      return;
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  if (isIOS) {
+    // Fallback para iOS sem suporte a compartilhar arquivos: abre o CSV numa
+    // nova aba para o usuário usar o botão de compartilhar do Safari.
+    window.open(url, '_blank');
+    showToast('⬇️ Toque em compartilhar para salvar o CSV');
+    return;
+  }
+
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `gastos-${currentPerson.toLowerCase()}-${new Date().toISOString().slice(0,7)}.csv`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
