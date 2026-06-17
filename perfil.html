@@ -306,6 +306,14 @@
           <button class="dark-switch" id="dark-switch" onclick="toggleDark()" aria-label="Alternar modo escuro"></button>
         </div>
         <div class="divider"></div>
+        <button class="menu-item" onclick="openEditName()">
+          <span class="menu-item-icon pink">✏️</span>
+          <span class="menu-item-body">
+            <span class="menu-item-label">Editar nome</span>
+            <span class="menu-item-desc" id="menu-name-desc">…</span>
+          </span>
+          <span class="menu-item-arrow">›</span>
+        </button>
         <button class="menu-item" onclick="openChangePwd()">
           <span class="menu-item-icon pink">🔑</span>
           <span class="menu-item-body">
@@ -367,6 +375,26 @@
     <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
     <a href="perfil.html"  class="nav-item active"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
   </nav>
+
+  <!-- MODAL EDITAR NOME -->
+  <div class="modal-overlay hidden" id="name-modal">
+    <div class="modal" style="max-width:400px">
+      <div class="modal-header">
+        <h3>✏️ Editar nome</h3>
+        <button class="modal-close" onclick="closeNameModal()">✕</button>
+      </div>
+      <div class="pwd-modal-body">
+        <div class="pwd-field">
+          <label class="pwd-label">Seu nome</label>
+          <input type="text" id="name-input" class="pwd-input" placeholder="Como quer ser chamada…" maxlength="30" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-import" onclick="closeNameModal()">Cancelar</button>
+        <button class="btn-confirm-import" onclick="saveName()">Salvar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL ALTERAR SENHA -->
   <div class="modal-overlay hidden" id="pwd-modal">
@@ -485,6 +513,11 @@
 
       // Mostra perfil do usuário logado por padrão
       viewProfile(me);
+
+      // Aplica nome customizado no hero e no menu
+      const displayName = getDisplayName(me);
+      document.getElementById('profile-name').textContent   = displayName;
+      document.getElementById('menu-name-desc').textContent = displayName;
     }
 
     function confirmLogout() {
@@ -548,9 +581,36 @@
       }
     }
 
-    window.viewProfile = viewProfile;
-    window.OTHERS      = OTHERS;
-    window.toggleDark  = toggleDark;
+    // ── EDITAR NOME ──────────────────────────────
+    function getDisplayName(user) {
+      return localStorage.getItem(`lar_name_${user}`) || user;
+    }
+
+    function openEditName() {
+      const user = window.CURRENT_USER;
+      document.getElementById('name-input').value = getDisplayName(user);
+      document.getElementById('name-modal').classList.remove('hidden');
+      document.getElementById('name-input').focus();
+    }
+    function closeNameModal() { document.getElementById('name-modal').classList.add('hidden'); }
+
+    function saveName() {
+      const user = window.CURRENT_USER;
+      const val  = document.getElementById('name-input').value.trim();
+      if (!val) { showToast('❌ Nome não pode ser vazio!'); return; }
+      localStorage.setItem(`lar_name_${user}`, val);
+      document.getElementById('profile-name').textContent    = val;
+      document.getElementById('menu-name-desc').textContent  = val;
+      closeNameModal();
+      showToast('✅ Nome atualizado!');
+    }
+
+    window.viewProfile    = viewProfile;
+    window.OTHERS         = OTHERS;
+    window.toggleDark     = toggleDark;
+    window.openEditName   = openEditName;
+    window.closeNameModal = closeNameModal;
+    window.saveName       = saveName;
     init();
   </script>
 </body>
