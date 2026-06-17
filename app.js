@@ -5,46 +5,43 @@ let db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let tasks = [];
 let currentFilter = 'all';
 
-// ── INIT ───────────────────────────────────────────────
+const PRIORITY_LABEL = { alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa' };
+const PRIORITY_ORDER = { alta: 0, media: 1, baixa: 2 };
+
 async function init() {
   await loadFromSupabase();
   subscribeToChanges();
 }
 
-// ── CARREGAR DO BANCO ──────────────────────────────────
 async function loadFromSupabase() {
-  const { data, error } = await db
-    .from('tasks').select('*').order('created_at', { ascending: true });
+  const { data, error } = await db.from('tasks').select('*').order('created_at', { ascending: true });
   if (error) { showToast('⚠️ Erro ao carregar.'); console.error(error); return; }
   tasks = data || [];
   render();
 }
 
-// ── REALTIME ───────────────────────────────────────────
 function subscribeToChanges() {
   db.channel('tasks-rt')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
-      loadFromSupabase();
-    }).subscribe();
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => loadFromSupabase())
+    .subscribe();
 }
 
-// ── ADICIONAR ──────────────────────────────────────────
 async function addTask() {
-  const input = document.getElementById('task-input');
-  const name  = input.value.trim();
+  const input    = document.getElementById('task-input');
+  const name     = input.value.trim();
   if (!name) { input.focus(); showToast('✏️ Escreve o nome da tarefa!'); return; }
 
   const responsible = document.getElementById('task-responsible').value;
   const category    = document.getElementById('task-category').value;
+  const priority    = document.getElementById('task-priority').value;
 
-  const { error } = await db.from('tasks').insert([{ name, responsible, category, done: false }]);
+  const { error } = await db.from('tasks').insert([{ name, responsible, category, priority, done: false }]);
   if (error) { showToast('❌ ' + error.message); return; }
   input.value = '';
   input.focus();
   showToast('✅ Tarefa adicionada!');
 }
 
-// ── MARCAR / DESMARCAR ─────────────────────────────────
 async function toggleTask(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
@@ -53,38 +50,38 @@ async function toggleTask(id) {
   showToast(!task.done ? '🎉 Concluída!' : '🔄 Reaberta!');
 }
 
-// ── TROCAR RESPONSÁVEL (inline select) ────────────────
 async function changeResponsible(id, value) {
   const { error } = await db.from('tasks').update({ responsible: value }).eq('id', id);
   if (error) { showToast('❌ Erro ao atualizar.'); return; }
   showToast('👤 Responsável atualizado!');
 }
 
-// ── EXCLUIR ────────────────────────────────────────────
+async function changePriority(id, value) {
+  const { error } = await db.from('tasks').update({ priority: value }).eq('id', id);
+  if (error) { showToast('❌ Erro ao atualizar.'); return; }
+}
+
 async function deleteTask(id) {
-  if (!confirm('Excluir essa tarefa?')) return;
+  const ok = await window.showConfirm('Excluir essa tarefa permanentemente?', {
+    title: 'Excluir tarefa', icon: '🗑️', okLabel: 'Excluir', danger: true
+  });
+  if (!ok) return;
   const { error } = await db.from('tasks').delete().eq('id', id);
   if (error) { showToast('❌ Erro ao excluir.'); return; }
   showToast('🗑️ Excluída.');
 }
 
-// ── FILTROS ────────────────────────────────────────────
 function setFilter(filter, btn) {
   currentFilter = filter;
-
-  // sincroniza botões de filtro
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   else {
     const match = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
     if (match) match.classList.add('active');
   }
-
-  // sincroniza stat cards
   document.querySelectorAll('.stat-card[data-filter]').forEach(c => {
     c.classList.toggle('stat-active', c.dataset.filter === filter);
   });
-
   render();
   document.querySelector('.tasks-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -93,15 +90,19 @@ function getFiltered() {
   switch (currentFilter) {
     case 'pending': return tasks.filter(t => !t.done);
     case 'done':    return tasks.filter(t => t.done);
-    case 'Aline':   return tasks.filter(t => t.responsible === 'Aline' || t.responsible === 'Aline + Isabel');
+    case 'Aline':   return tasks.filter(t => t.responsible === 'Aline'  || t.responsible === 'Aline + Isabel');
     case 'Isabel':  return tasks.filter(t => t.responsible === 'Isabel' || t.responsible === 'Aline + Isabel');
     default:        return tasks;
   }
 }
 
-// ── RENDER ─────────────────────────────────────────────
 function render() {
   const filtered = getFiltered();
+  // Ordenar: alta > media > baixa, depois as concluídas por último
+  filtered.sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return (PRIORITY_ORDER[a.priority || 'media'] || 1) - (PRIORITY_ORDER[b.priority || 'media'] || 1);
+  });
   updateStats(filtered);
 
   const list  = document.getElementById('task-list');
@@ -112,8 +113,9 @@ function render() {
   empty.classList.add('hidden');
 
   filtered.forEach(task => {
+    const p    = task.priority || 'media';
     const item = document.createElement('div');
-    item.className = `task-item ${task.done ? 'done' : ''}`;
+    item.className = `task-item priority-${p} ${task.done ? 'done' : ''}`;
     item.innerHTML = `
       <input type="checkbox" class="task-check" ${task.done ? 'checked' : ''}
         onchange="toggleTask('${task.id}')" aria-label="Concluir" />
@@ -126,6 +128,12 @@ function render() {
             <option value="Aline + Isabel" ${task.responsible === 'Aline + Isabel' ? 'selected' : ''}>👥 Aline + Isabel</option>
           </select>
           <span class="tag tag-category">${escapeHtml(task.category)}</span>
+          <select class="tag-select tag-priority-${p}" style="background:none;border:1.5px solid currentColor;opacity:.85"
+            onchange="changePriority('${task.id}', this.value)">
+            <option value="alta"  ${p==='alta'  ? 'selected':''}>🔴 Alta</option>
+            <option value="media" ${p==='media' ? 'selected':''}>🟡 Média</option>
+            <option value="baixa" ${p==='baixa' ? 'selected':''}>🟢 Baixa</option>
+          </select>
         </div>
       </div>
       <button class="btn-delete" onclick="deleteTask('${task.id}')" title="Excluir">🗑️</button>
@@ -134,7 +142,6 @@ function render() {
   });
 }
 
-// ── STATS baseados no filtro ativo ─────────────────────
 function updateStats(filtered) {
   const total   = filtered.length;
   const done    = filtered.filter(t => t.done).length;
@@ -147,18 +154,13 @@ function updateStats(filtered) {
   document.getElementById('stat-progress').textContent = pct + '%';
   document.getElementById('progress-fill').style.width = pct + '%';
 
-  // Label dinâmico no card de total
   const label = {
-    all:     'Total de Tarefas',
-    pending: 'Pendentes',
-    done:    'Concluídas',
-    Aline:   'Tarefas da Aline',
-    Isabel:  'Tarefas da Isabel',
+    all: 'Total de Tarefas', pending: 'Pendentes', done: 'Concluídas',
+    Aline: 'Tarefas da Aline', Isabel: 'Tarefas da Isabel',
   }[currentFilter] || 'Total de Tarefas';
   document.querySelector('#stats .stat-card:first-child .stat-label').textContent = label;
 }
 
-// ── HELPERS ────────────────────────────────────────────
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -171,14 +173,13 @@ function showToast(msg) {
   t._timeout = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ── EXPÕE FUNÇÕES GLOBALMENTE ──────────────────────────
 window.addTask           = addTask;
 window.toggleTask        = toggleTask;
 window.deleteTask        = deleteTask;
 window.setFilter         = setFilter;
 window.changeResponsible = changeResponsible;
+window.changePriority    = changePriority;
 
-// ── ENTER ──────────────────────────────────────────────
 document.getElementById('task-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') addTask();
 });

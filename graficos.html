@@ -7,7 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f472b6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Nosso Lar" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <script>if(localStorage.getItem('lar_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
 <div class="container">
@@ -63,6 +69,34 @@
     </div>
   </div>
 
+  <!-- Orçamento mensal por categoria -->
+  <div class="chart-card" id="budget-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <h2 class="chart-title" style="margin:0">🎯 Orçamento por Categoria</h2>
+      <button class="filter-btn" onclick="toggleBudgetEdit()" id="btn-budget-edit">✏️ Editar limites</button>
+    </div>
+    <div id="budget-edit" style="display:none;margin-bottom:16px">
+      <div class="add-task-form" style="flex-wrap:wrap">
+        <select id="budget-cat" class="task-select" style="flex:1 1 160px">
+          <option value="🛒 Mercado">🛒 Mercado</option>
+          <option value="🍔 Alimentação">🍔 Alimentação</option>
+          <option value="💊 Saúde">💊 Saúde</option>
+          <option value="🚌 Transporte">🚌 Transporte</option>
+          <option value="🏠 Casa">🏠 Casa</option>
+          <option value="💡 Conta Fixa">💡 Conta Fixa</option>
+          <option value="👗 Roupas">👗 Roupas</option>
+          <option value="🐾 Pet">🐾 Pet</option>
+          <option value="🎉 Lazer">🎉 Lazer</option>
+          <option value="📋 Outro">📋 Outro</option>
+        </select>
+        <input type="number" id="budget-amount" class="task-input" placeholder="Limite R$"
+          min="1" step="10" style="max-width:140px;flex:0 1 140px" />
+        <button class="btn-add" onclick="saveBudget()">Salvar limite</button>
+      </div>
+    </div>
+    <div id="budget-bars"></div>
+  </div>
+
   <!-- Top gastos -->
   <div class="card">
     <h2 class="section-title" style="margin-bottom:14px">🏆 Maiores gastos do mês</h2>
@@ -95,6 +129,8 @@
   img.src = `fotos/${u.toLowerCase()}.jpg`;
 })();
 </script>
-<script src="graficos.js?v=1"></script>
+<script src="graficos.js?v=2"></script>
+<script src="dialog.js"></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>

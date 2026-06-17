@@ -7,7 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f472b6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Nosso Lar" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <script>if(localStorage.getItem('lar_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
 <div class="container">
@@ -67,6 +73,11 @@
         <option value="🎉 Lazer">🎉 Lazer</option>
         <option value="📋 Outro">📋 Outro</option>
       </select>
+      <select id="task-priority" class="task-select">
+        <option value="media">🟡 Média</option>
+        <option value="alta">🔴 Alta</option>
+        <option value="baixa">🟢 Baixa</option>
+      </select>
       <button class="btn-add" onclick="addTask()">Adicionar</button>
     </div>
   </section>
@@ -118,6 +129,8 @@
   img.src = `fotos/${u.toLowerCase()}.jpg`;
 })();
 </script>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
+<script src="dialog.js"></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>

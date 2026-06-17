@@ -54,7 +54,10 @@ async function updateQty(id, delta) {
 }
 
 async function deleteStock(id) {
-  if (!confirm('Excluir este item do estoque?')) return;
+  const ok = await window.showConfirm('Excluir este item do estoque?', {
+    title: 'Excluir item', icon: '📦', okLabel: 'Excluir', danger: true
+  });
+  if (!ok) return;
   const { error } = await db.from('stock').delete().eq('id', id);
   if (error) { showToast('❌ Erro ao excluir.'); return; }
   showToast('🗑️ Excluído.');

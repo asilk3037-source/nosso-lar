@@ -68,6 +68,7 @@ function renderAll() {
   renderCatChart(exps);
   renderMonthChart();
   renderTopList(exps);
+  loadBudgets();
 }
 
 function renderCatChart(exps) {
@@ -192,8 +193,73 @@ function renderTopList(exps) {
   });
 }
 
+// ── ORÇAMENTO ─────────────────────────────────
+let budgets = [];
+
+async function loadBudgets() {
+  const { data } = await db.from('budgets').select('*').eq('month', selectedMonth);
+  budgets = data || [];
+  renderBudgetBars();
+}
+
+function toggleBudgetEdit() {
+  const el = document.getElementById('budget-edit');
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+async function saveBudget() {
+  const cat    = document.getElementById('budget-cat').value;
+  const amount = parseFloat(document.getElementById('budget-amount').value);
+  if (!amount || amount <= 0) { showToast('💰 Informe um valor válido!'); return; }
+
+  // Upsert: remove existing e insere novo
+  await db.from('budgets').delete().eq('category', cat).eq('month', selectedMonth);
+  const { error } = await db.from('budgets').insert([{ category: cat, amount, month: selectedMonth }]);
+  if (error) { showToast('❌ ' + error.message); return; }
+
+  document.getElementById('budget-amount').value = '';
+  showToast('🎯 Limite salvo!');
+  await loadBudgets();
+}
+
+function renderBudgetBars() {
+  const exps = getMonthExpenses();
+  const catMap = {};
+  exps.forEach(e => { catMap[e.category] = (catMap[e.category] || 0) + Number(e.value); });
+
+  const container = document.getElementById('budget-bars');
+  if (budgets.length === 0) {
+    container.innerHTML = '<p style="font-size:.85rem;color:var(--muted);font-weight:600;text-align:center;padding:12px 0">Nenhum limite definido. Clique em "Editar limites" para configurar.</p>';
+    return;
+  }
+
+  container.innerHTML = '';
+  budgets.forEach(b => {
+    const spent = catMap[b.category] || 0;
+    const pct   = Math.min(100, Math.round((spent / b.amount) * 100));
+    const color = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#22c55e';
+    const div   = document.createElement('div');
+    div.style.marginBottom = '12px';
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:.82rem;font-weight:700;color:var(--text)">${escapeHtml(b.category)}</span>
+        <span style="font-size:.78rem;font-weight:700;color:${color}">
+          R$${spent.toFixed(0).replace('.',',')} / R$${Number(b.amount).toFixed(0).replace('.',',')} (${pct}%)
+        </span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:100px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:100px;transition:width .6s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
 const fmt = v => 'R$ ' + v.toFixed(2).replace('.',',');
 const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+window.toggleBudgetEdit = toggleBudgetEdit;
+window.saveBudget       = saveBudget;
 
 function showToast(msg) {
   const t = document.getElementById('toast');

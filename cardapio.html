@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Nosso Lar ❤️ — Cardápio</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f472b6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Nosso Lar" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=12" />
+  <script>if(localStorage.getItem('lar_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero" style="background:linear-gradient(135deg,#f97316 0%,#fb923c 50%,#fbbf24 100%)">
+    <div class="hero-emoji">🍽️</div>
+    <h1>Cardápio</h1>
+    <p class="hero-sub">Aline <span class="heart">❤️</span> Isabel</p>
+    <p class="hero-desc">O que vai ter de bom nessa semana?</p>
+    <div class="user-badge" onclick="window.location.href='perfil.html'">
+      <div class="user-avatar" id="nav-avatar"><span id="nav-initial"></span></div>
+      <span id="nav-username">…</span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-num pink" id="c-refeicoes">0</span>
+      <span class="stat-label">Refeições planejadas</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num orange" id="c-vazios">0</span>
+      <span class="stat-label">Horários vazios</span>
+    </div>
+    <div class="stat-card" style="grid-column:span 2">
+      <span class="stat-num green" id="c-hoje">—</span>
+      <span class="stat-label">Cardápio de hoje</span>
+    </div>
+  </div>
+
+  <!-- Seletor de semana -->
+  <div class="card" style="padding:14px 22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button class="btn-import" onclick="mudarSemana(-1)">‹ Semana anterior</button>
+      <span id="semana-label" style="font-size:.88rem;font-weight:800;color:var(--text)"></span>
+      <button class="btn-import" onclick="mudarSemana(1)">Próxima semana ›</button>
+    </div>
+  </div>
+
+  <!-- Grid do cardápio -->
+  <div class="card" style="padding:16px;overflow-x:auto">
+    <div class="cardapio-grid" id="cardapio-grid"></div>
+  </div>
+
+  <div style="height:90px"></div>
+</div>
+
+<!-- Modal de adicionar refeição -->
+<div class="modal-overlay hidden" id="meal-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3 id="meal-modal-title">🍽️ Refeição</h3>
+      <button class="modal-close" onclick="closeMealModal()">✕</button>
+    </div>
+    <div class="meal-modal-body">
+      <div>
+        <label style="font-size:.75rem;font-weight:800;color:var(--muted);display:block;margin-bottom:6px">Nome do prato</label>
+        <input type="text" id="meal-name" class="task-input" placeholder="Ex: Frango grelhado com arroz…" maxlength="80" style="width:100%" />
+      </div>
+      <div>
+        <label style="font-size:.75rem;font-weight:800;color:var(--muted);display:block;margin-bottom:6px">Serve quantas pessoas?</label>
+        <select id="meal-serves" class="task-select" style="width:100%">
+          <option value="2">2 pessoas</option>
+          <option value="1">1 pessoa</option>
+          <option value="4">4 pessoas</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-import" onclick="closeMealModal()">Cancelar</button>
+      <button class="btn-confirm-import" id="meal-save-btn" onclick="saveMeal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"   class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></a>
+  <a href="tarefas.html" class="nav-item"><span class="nav-icon">✅</span><span class="nav-label">Tarefas</span></a>
+  <a href="compras.html" class="nav-item"><span class="nav-icon">🛒</span><span class="nav-label">Compras</span></a>
+  <a href="gastos.html"  class="nav-item"><span class="nav-icon">💰</span><span class="nav-label">Gastos</span></a>
+  <a href="perfil.html"  class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+(function setupAvatar() {
+  const u = window.CURRENT_USER || '';
+  document.getElementById('nav-username').textContent = u;
+  document.getElementById('nav-initial').textContent  = u ? u[0] : '?';
+  const el = document.getElementById('nav-avatar');
+  const img = new Image();
+  img.onload = () => { el.style.backgroundImage = `url('${img.src}')`; document.getElementById('nav-initial').style.display = 'none'; };
+  img.src = `fotos/${u.toLowerCase()}.jpg`;
+})();
+</script>
+<script src="cardapio.js?v=1"></script>
+<script src="dialog.js"></script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+</body>
+</html>

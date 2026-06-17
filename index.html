@@ -7,7 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f472b6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Nosso Lar" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <script>if(localStorage.getItem('lar_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
 <div class="container">
@@ -21,6 +27,15 @@
       <span id="nav-username">…</span>
     </div>
   </header>
+
+  <!-- BUSCA GLOBAL -->
+  <div class="global-search-wrap">
+    <span class="global-search-icon">🔍</span>
+    <input type="text" id="global-search" class="global-search-input"
+      placeholder="Buscar tarefas, recados, gastos…"
+      oninput="onGlobalSearch(this.value)" autocomplete="off" />
+  </div>
+  <div id="search-results" class="global-search-results" style="display:none"></div>
 
   <!-- QUICK STATS -->
   <div class="stats" id="home-stats">
@@ -78,6 +93,10 @@
         <div class="app-card-icon" style="background:#f0f9ff">📦</div>
         <span class="app-card-label">Estoque</span>
       </a>
+      <a href="cardapio.html" class="app-card">
+        <div class="app-card-icon" style="background:#fff7ed">🍽️</div>
+        <span class="app-card-label">Cardápio</span>
+      </a>
       <a href="perfil.html" class="app-card">
         <div class="app-card-icon" style="background:#fdf4ff">👤</div>
         <span class="app-card-label">Perfil</span>
@@ -110,6 +129,8 @@
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
+<script src="dialog.js"></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 <script>
 const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
@@ -195,7 +216,93 @@ async function init() {
 }
 
 const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-init();
+
+// ── BUSCA GLOBAL ──────────────────────────────────
+let _searchTimer = null;
+async function onGlobalSearch(q) {
+  const box = document.getElementById('search-results');
+  q = q.trim();
+  if (!q) { box.style.display = 'none'; return; }
+
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(async () => {
+    const [taskRes, recRes, expRes] = await Promise.all([
+      db.from('tasks').select('id,name,category,done').ilike('name', `%${q}%`).limit(5),
+      db.from('recados').select('id,from_user,message').ilike('message', `%${q}%`).limit(5),
+      db.from('expenses').select('id,description,category,value').ilike('description', `%${q}%`).limit(5),
+    ]);
+    const results = [
+      ...(taskRes.data||[]).map(t=>({ icon:'✅', bg:'#f5eeff', title:t.name,       sub:`Tarefa · ${t.category}`, href:'tarefas.html' })),
+      ...(recRes.data||[]).map(r=>({ icon:'💬', bg:'#fdf2f8', title:r.message.slice(0,60), sub:`Recado de ${r.from_user}`, href:'recados.html' })),
+      ...(expRes.data||[]).map(e=>({ icon:'💰', bg:'#d1fae5', title:e.description, sub:`${e.category} · R$ ${Number(e.value).toFixed(2).replace('.',',')}`, href:'gastos.html' })),
+    ];
+    box.style.display = '';
+    if (results.length === 0) {
+      box.innerHTML = `<div class="search-empty">Nenhum resultado para "<strong>${escapeHtml(q)}</strong>"</div>`;
+      return;
+    }
+    box.innerHTML = results.map(r => `
+      <a href="${r.href}" class="search-result-item">
+        <div class="search-result-icon" style="background:${r.bg}">${r.icon}</div>
+        <div class="search-result-body">
+          <div class="search-result-title">${escapeHtml(r.title)}</div>
+          <div class="search-result-sub">${escapeHtml(r.sub)}</div>
+        </div>
+      </a>
+    `).join('');
+  }, 300);
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-results') && !e.target.closest('#global-search')) {
+    document.getElementById('search-results').style.display = 'none';
+  }
+});
+
+// ── NOTIFICAÇÕES DO BROWSER ──────────────────
+async function setupNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+  if (Notification.permission !== 'granted') return;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+
+  // Contas vencendo hoje ou atrasadas
+  const { data: bills } = await db.from('expenses').select('description,due_date,paid')
+    .eq('paid', false).not('due_date', 'is', null);
+
+  const urgentBills = (bills||[]).filter(b => {
+    const d = new Date(b.due_date + 'T00:00:00');
+    return d <= tomorrow;
+  });
+
+  if (urgentBills.length > 0) {
+    new Notification('💰 Nosso Lar — Contas a pagar', {
+      body: urgentBills.length === 1
+        ? `"${urgentBills[0].description}" vence hoje!`
+        : `${urgentBills.length} contas vencem hoje ou estão atrasadas!`,
+      icon: 'icons/icon.svg',
+      badge: 'icons/icon.svg',
+      tag: 'bills',
+    });
+  }
+
+  // Recados não lidos
+  const { data: recs } = await db.from('recados').select('from_user').eq('read', false);
+  const minhas = (recs||[]).filter(r => r.from_user !== window.CURRENT_USER);
+  if (minhas.length > 0) {
+    new Notification('💬 Nosso Lar — Recado novo', {
+      body: `Você tem ${minhas.length} recado${minhas.length>1?'s':''} não lido${minhas.length>1?'s':''}!`,
+      icon: 'icons/icon.svg',
+      tag: 'recados',
+    });
+  }
+}
+
+init().then(() => setTimeout(setupNotifications, 1500));
 </script>
 </body>
 </html>

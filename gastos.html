@@ -7,7 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f472b6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Nosso Lar" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <script>if(localStorage.getItem('lar_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
 <div class="container">
@@ -88,7 +94,10 @@
   </section>
 
   <section class="tasks-section">
-    <h2 class="section-title" id="history-title" style="margin-bottom:14px">📋 Histórico — Aline</h2>
+    <div class="section-header" style="margin-bottom:14px">
+      <h2 class="section-title" id="history-title">📋 Histórico — Aline</h2>
+      <button class="btn-import" onclick="exportCSV()" title="Exportar CSV">⬇️ CSV</button>
+    </div>
     <div id="expense-list" class="task-list">
       <div class="empty-state" id="expense-empty">
         <span>💸</span>
@@ -124,6 +133,8 @@
 // default due date to today
 document.getElementById('expense-due').value = new Date().toISOString().split('T')[0];
 </script>
-<script src="gastos.js?v=11"></script>
+<script src="gastos.js?v=12"></script>
+<script src="dialog.js"></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>

@@ -70,8 +70,37 @@ async function togglePaid(id, current) {
   else showToast(!current ? '✅ Marcado como pago!' : '🔄 Marcado como pendente!');
 }
 
+function exportCSV() {
+  const rows = [['Descrição','Categoria','Valor','Pessoa','Vencimento','Pago','Recorrente','Data']];
+  const toExport = expenses.filter(e => e.person === currentPerson || e.person === 'Aline + Isabel');
+  toExport.forEach(e => {
+    rows.push([
+      `"${(e.description||'').replace(/"/g,'""')}"`,
+      `"${(e.category||'').replace(/"/g,'""')}"`,
+      Number(e.value).toFixed(2).replace('.',','),
+      `"${e.person}"`,
+      e.due_date || '',
+      e.paid ? 'Sim' : 'Não',
+      e.recurring ? 'Sim' : 'Não',
+      new Date(e.created_at).toLocaleDateString('pt-BR'),
+    ]);
+  });
+  const csv  = rows.map(r => r.join(';')).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `gastos-${currentPerson.toLowerCase()}-${new Date().toISOString().slice(0,7)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('⬇️ CSV exportado!');
+}
+
 async function deleteExpense(id) {
-  if (!confirm('Excluir esse lançamento?')) return;
+  const ok = await window.showConfirm('Excluir esse lançamento?', {
+    title: 'Excluir lançamento', icon: '🗑️', okLabel: 'Excluir', danger: true
+  });
+  if (!ok) return;
   const { error } = await db.from('expenses').delete().eq('id', id);
   if (error) { showToast('❌ Erro ao excluir.'); return; }
   showToast('🗑️ Excluído.');
@@ -165,6 +194,7 @@ function showToast(msg) {
 
 window.addExpense   = addExpense;
 window.deleteExpense = deleteExpense;
+window.exportCSV    = exportCSV;
 window.switchPerson = switchPerson;
 window.switchBillTab = switchBillTab;
 window.togglePaid   = togglePaid;

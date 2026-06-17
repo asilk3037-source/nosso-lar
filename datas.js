@@ -60,7 +60,10 @@ async function addDate() {
 }
 
 async function deleteDate(id) {
-  if (!confirm('Excluir esta data?')) return;
+  const ok = await window.showConfirm('Excluir esta data importante?', {
+    title: 'Excluir data', icon: '📅', okLabel: 'Excluir', danger: true
+  });
+  if (!ok) return;
   const { error } = await db.from('important_dates').delete().eq('id', id);
   if (error) { showToast('❌ Erro ao excluir.'); return; }
   showToast('🗑️ Excluída.');

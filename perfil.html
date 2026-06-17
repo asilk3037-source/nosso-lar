@@ -7,7 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f472b6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Nosso Lar" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <script>if(localStorage.getItem('lar_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <link rel="stylesheet" href="style.css?v=12" />
   <style>
     /* Hero do perfil */
     .profile-hero {
@@ -289,6 +295,17 @@
     <div class="profile-section">
       <h2 class="profile-section-title">⚙️ Configurações</h2>
       <div class="menu-list">
+        <div class="dark-toggle">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="menu-item-icon" style="background:#1e2a3a">🌙</span>
+            <div class="menu-item-body">
+              <span class="menu-item-label">Modo escuro</span>
+              <span class="menu-item-desc">Tema escuro para economizar bateria</span>
+            </div>
+          </div>
+          <button class="dark-switch" id="dark-switch" onclick="toggleDark()" aria-label="Alternar modo escuro"></button>
+        </div>
+        <div class="divider"></div>
         <button class="menu-item" onclick="openChangePwd()">
           <span class="menu-item-icon pink">🔑</span>
           <span class="menu-item-body">
@@ -384,6 +401,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
+  <script src="dialog.js"></script>
+  <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
   <script>
     const SUPABASE_URL = 'https://pygyunefyowmbfyhbajg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5Z3l1bmVmeW93bWJmeWhiYWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDQ4MjksImV4cCI6MjA5NjkyMDgyOX0.0M0ZqRBR50w9pR9Xd4aS9htqYBhGmLdhkA2PYPX8p74';
@@ -518,8 +537,20 @@
       t._t = setTimeout(() => t.classList.remove('show'), 2600);
     }
 
+    function toggleDark() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('lar_theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('lar_theme', 'dark');
+      }
+    }
+
     window.viewProfile = viewProfile;
     window.OTHERS      = OTHERS;
+    window.toggleDark  = toggleDark;
     init();
   </script>
 </body>

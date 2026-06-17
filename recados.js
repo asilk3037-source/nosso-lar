@@ -51,7 +51,10 @@ async function sendRecado() {
 }
 
 async function deleteRecado(id) {
-  if (!confirm('Excluir este recado?')) return;
+  const ok = await window.showConfirm('Excluir este recado?', {
+    title: 'Excluir recado', icon: '💬', okLabel: 'Excluir', danger: true
+  });
+  if (!ok) return;
   const { error } = await db.from('recados').delete().eq('id', id);
   if (error) { showToast('❌ Erro ao excluir.'); return; }
   showToast('🗑️ Excluído.');
